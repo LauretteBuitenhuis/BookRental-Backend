@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -37,7 +38,7 @@ public class BookController {
 		repo.deleteById(id);
 	}
 	
-	@PostMapping("book/{id}/edit")
+	@PutMapping("book/{id}/edit")
 	public void editBook(@RequestBody Book book, @PathVariable long id) {
 		Book prevBook = repo.findById(id).get();
 		
@@ -52,6 +53,11 @@ public class BookController {
 	@GetMapping("book/all")
 	public List<Book> findAllBooks(){
 		return repo.findAll();
+	}
+	
+	@GetMapping("book/{id}")
+	public Book findBook(@PathVariable long id){
+		return repo.findById(id).get();
 	}
 	
 	
