@@ -1,10 +1,13 @@
 package nl.workingtalent.bookrental.model;
 
+import java.util.List;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 
 @Entity
 public class Book {
@@ -21,6 +24,9 @@ public class Book {
 
 	@Column(nullable = false, length = 100)
 	private String author;
+	
+	@OneToMany(mappedBy = "book")
+	private List<BookBorrowRequest> bookBorrows;
 
 	public long getId() {
 		return id;
@@ -52,6 +58,14 @@ public class Book {
 
 	public void setAuthor(String author) {
 		this.author = author;
+	}
+
+	public List<BookBorrowRequest> getBookBorrows() {
+		return bookBorrows;
+	}
+
+	public void setBookBorrows(List<BookBorrowRequest> bookBorrows) {
+		this.bookBorrows = bookBorrows;
 	}
 	
 }
