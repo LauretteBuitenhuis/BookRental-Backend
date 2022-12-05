@@ -21,6 +21,9 @@ public class Copy {
 	
 	@Column(nullable = false)
 	private boolean goodCondition;
+	
+	@Column(nullable = false)
+	private boolean inService;
 
 	@ManyToOne(optional = false)
 	private Book book;
@@ -43,6 +46,14 @@ public class Copy {
 
 	public void setGoodCondition(boolean goodCondition) {
 		this.goodCondition = goodCondition;
+	}
+
+	public boolean isInService() {
+		return inService;
+	}
+
+	public void setInService(boolean inService) {
+		this.inService = inService;
 	}
 
 	public Book getBook() {

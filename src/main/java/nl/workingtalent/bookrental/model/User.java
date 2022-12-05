@@ -36,6 +36,9 @@ public class User {
 	@Column(nullable = false)
 	private boolean isAdmin;
 	
+	@Column(nullable = false)
+	private boolean employed;
+	
 	@JsonIgnore
 	@OneToMany(mappedBy = "user")
 	private List<Reservation> reservations;
@@ -98,6 +101,14 @@ public class User {
 
 	public void setAdmin(boolean isAdmin) {
 		this.isAdmin = isAdmin;
+	}
+
+	public boolean isEmployed() {
+		return employed;
+	}
+
+	public void setEmployed(boolean employed) {
+		this.employed = employed;
 	}
 
 	public List<Reservation> getReservations() {
