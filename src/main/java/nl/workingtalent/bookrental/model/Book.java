@@ -9,6 +9,8 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Entity
 public class Book {
 
@@ -19,14 +21,23 @@ public class Book {
 	@Column(nullable = false, length = 100)
 	private String title;
 	
-	@Column(nullable = false, length = 20)
-	private String isbn;
-
 	@Column(nullable = false, length = 100)
 	private String author;
 	
+	@Column(nullable = false, length = 20)
+	private String isbn;
+	
+	@JsonIgnore
 	@OneToMany(mappedBy = "book")
-	private List<BookBorrowRequest> bookBorrows;
+	private List<Tag> tags;
+	
+	@JsonIgnore
+	@OneToMany(mappedBy = "book")
+	private List<Copy> copies;
+	
+	@JsonIgnore
+	@OneToMany(mappedBy = "book")
+	private List<Reservation> reservations;
 
 	public long getId() {
 		return id;
@@ -44,14 +55,6 @@ public class Book {
 		this.title = title;
 	}
 
-	public String getIsbn() {
-		return isbn;
-	}
-
-	public void setIsbn(String isbn) {
-		this.isbn = isbn;
-	}
-
 	public String getAuthor() {
 		return author;
 	}
@@ -60,12 +63,35 @@ public class Book {
 		this.author = author;
 	}
 
-	public List<BookBorrowRequest> getBookBorrows() {
-		return bookBorrows;
+	public String getIsbn() {
+		return isbn;
 	}
 
-	public void setBookBorrows(List<BookBorrowRequest> bookBorrows) {
-		this.bookBorrows = bookBorrows;
+	public void setIsbn(String isbn) {
+		this.isbn = isbn;
 	}
-	
+
+	public List<Tag> getTags() {
+		return tags;
+	}
+
+	public void setTags(List<Tag> tags) {
+		this.tags = tags;
+	}
+
+	public List<Copy> getCopies() {
+		return copies;
+	}
+
+	public void setCopies(List<Copy> copies) {
+		this.copies = copies;
+	}
+
+	public List<Reservation> getReservations() {
+		return reservations;
+	}
+
+	public void setReservations(List<Reservation> reservations) {
+		this.reservations = reservations;
+	}
 }

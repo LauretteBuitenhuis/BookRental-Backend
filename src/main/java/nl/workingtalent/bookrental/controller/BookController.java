@@ -10,8 +10,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import nl.workingtalent.bookrental.model.Book;
@@ -19,18 +17,14 @@ import nl.workingtalent.bookrental.repository.IBookRepository;
 
 @RestController
 @CrossOrigin(maxAge = 3600)
-
 public class BookController {
 	
 	@Autowired
 	private IBookRepository repo;
 	
-	
-	@RequestMapping(method = RequestMethod.POST, value="createbook")
-	public Book makeBook(@RequestBody Book book) {
-		Book newBook=repo.save(book);
-		
-		return newBook;
+	@PostMapping("book/create")
+	public void createBook(@RequestBody Book book) {
+		repo.save(book);
 	}
 	
 	@DeleteMapping("book/{id}/delete")
@@ -47,7 +41,6 @@ public class BookController {
 		prevBook.setTitle(book.getTitle());
 		
 		repo.save(prevBook);
-		
 	}
 	
 	@GetMapping("book/all")
@@ -59,6 +52,4 @@ public class BookController {
 	public Book findBook(@PathVariable long id){
 		return repo.findById(id).get();
 	}
-	
-	
 }
