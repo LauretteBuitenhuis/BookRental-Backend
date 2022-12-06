@@ -22,15 +22,16 @@ public class UserController {
 		repo.save(user);
 	}
 	
+	
 	@GetMapping("user/login")
-	public boolean findUserByEmail() {
+	public boolean userLogin(){
 		System.out.println("Werkt!");
 		User userInlogMail=repo.findByEmail("12345@gmail.com");
 		System.out.println("Id belonging to email is: " + userInlogMail.getId());
 		User userInlogPassword=repo.findByPassword("welkom12345");
 		System.out.println("Id belonging to password is: "+ userInlogPassword.getId());
 		return userInlogPassword.getId() == userInlogMail.getId();
-	
+		
 	}
 	
 }
