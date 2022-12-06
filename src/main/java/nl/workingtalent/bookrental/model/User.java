@@ -24,7 +24,7 @@ public class User {
 	@Column(nullable = false)
 	private String lastName;
 	
-	@Column(nullable = false)
+	@Column(nullable = false, unique = true)
 	private String email;
 	
 	@Column(nullable = false)
@@ -75,7 +75,7 @@ public class User {
 	public void setEmail(String email) {
 		this.email = email;
 	}
-
+	
 	public String getUsername() {
 		return username;
 	}
@@ -83,7 +83,7 @@ public class User {
 	public void setUsername(String username) {
 		this.username = username;
 	}
-
+	
 	public String getPassword() {
 		return password;
 	}
