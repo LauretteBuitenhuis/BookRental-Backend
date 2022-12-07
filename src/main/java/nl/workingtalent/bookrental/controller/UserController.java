@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import nl.workingtalent.bookrental.model.GeneratePassword;
 import nl.workingtalent.bookrental.model.NewUser;
+import nl.workingtalent.bookrental.model.PasswordEncoder;
 import nl.workingtalent.bookrental.model.User;
 import nl.workingtalent.bookrental.repository.IUserRepository;
 
@@ -33,20 +34,21 @@ public class UserController {
 		}
 		// if not in database: create account
 		if(userAlreadyExists == false) {
-			String generatePassword = new GeneratePassword().generateRandomString(10);
+			String generatedPassword = new GeneratePassword().generateRandomString(10);
+			String encodedPassword = new PasswordEncoder().encode(generatedPassword);
 			User user = new User();
 			
 			user.setFirstName(userRequest.getFirstName());
 			user.setLastName(userRequest.getLastName());
 			user.setEmail(userRequest.getEmail());
 			user.setUsername(userRequest.getEmail());
-			user.setPassword(generatePassword);
+			user.setPassword(encodedPassword);
 			
-			// TODO - default is false, what if it is a admin?
+			// TODO - false by default, what if it is a admin?
 			user.setAdmin(false);
 			repo.save(user);
 			
-			// If already in database: error message 403 / 409 ?
+		// If already in database: error message (403/409?)
 		} else {
 			System.out.println("Email already exists.");
 		}
