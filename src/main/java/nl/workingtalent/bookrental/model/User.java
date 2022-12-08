@@ -28,13 +28,13 @@ public class User {
 	private String email;
 	
 	@Column(nullable = false)
-	private String username;
-	
-	@Column(nullable = false)
 	private String password;
 	
 	@Column(nullable = false)
-	private boolean isAdmin;
+	private boolean admin;
+	
+	@Column(nullable = false)
+	private boolean employed;
 	
 	@JsonIgnore
 	@OneToMany(mappedBy = "user")
@@ -75,15 +75,7 @@ public class User {
 	public void setEmail(String email) {
 		this.email = email;
 	}
-	
-	public String getUsername() {
-		return username;
-	}
 
-	public void setUsername(String username) {
-		this.username = username;
-	}
-	
 	public String getPassword() {
 		return password;
 	}
@@ -93,11 +85,19 @@ public class User {
 	}
 
 	public boolean isAdmin() {
-		return isAdmin;
+		return admin;
 	}
 
-	public void setAdmin(boolean isAdmin) {
-		this.isAdmin = isAdmin;
+	public void setAdmin(boolean admin) {
+		this.admin = admin;
+	}
+
+	public boolean isEmployed() {
+		return employed;
+	}
+
+	public void setEmployed(boolean employed) {
+		this.employed = employed;
 	}
 
 	public List<Reservation> getReservations() {
