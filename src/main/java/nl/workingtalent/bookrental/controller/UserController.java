@@ -41,7 +41,6 @@ public class UserController {
 			user.setFirstName(userRequest.getFirstName());
 			user.setLastName(userRequest.getLastName());
 			user.setEmail(userRequest.getEmail());
-			user.setUsername(userRequest.getEmail());
 			user.setPassword(encodedPassword);
 			
 			// TODO - false by default, what if it is a admin?
