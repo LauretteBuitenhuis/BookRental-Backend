@@ -24,7 +24,7 @@ public class UserController {
 	
 	@PostMapping("user/create")
 	public void createUser(@RequestBody NewUser userRequest) {
-		// TODO - check if user is admin (Authorised to create new user)
+		// TODO - WIM-12: check if user is admin (Authorised to create new user)
 		
 		// Check if user already exists in database by email
 		boolean userAlreadyExists = false;
@@ -48,7 +48,7 @@ public class UserController {
 			user.setAdmin(false);
 			repo.save(user);
 			
-		// If already in database: error message (403/409?)
+		// If already in database: error message
 		} else {
 			System.out.println("Email already exists.");
 		}
