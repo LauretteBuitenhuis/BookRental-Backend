@@ -24,7 +24,7 @@ public class User {
 	@Column(nullable = false)
 	private String lastName;
 	
-	@Column(nullable = false)
+	@Column(nullable = false, unique = true)
 	private String email;
 	
 	@Column(nullable = false)
@@ -34,7 +34,7 @@ public class User {
 	private boolean admin;
 	
 	@Column(nullable = false)
-	private boolean employed;
+	private boolean enabled;
 	
 	@JsonIgnore
 	@OneToMany(mappedBy = "user")
@@ -92,12 +92,12 @@ public class User {
 		this.admin = admin;
 	}
 
-	public boolean isEmployed() {
-		return employed;
+	public boolean isEnabled() {
+		return enabled;
 	}
 
-	public void setEmployed(boolean employed) {
-		this.employed = employed;
+	public void setEnabled(boolean enabled) {
+		this.enabled = enabled;
 	}
 
 	public List<Reservation> getReservations() {
