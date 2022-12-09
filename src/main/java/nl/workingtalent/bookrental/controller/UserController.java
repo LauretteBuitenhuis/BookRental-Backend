@@ -27,31 +27,27 @@ public class UserController {
 		// TODO - WIM-12: check if user is admin (Authorised to create new user)
 		
 		// Check if user already exists in database by email
-		boolean userAlreadyExists = false;
 		User existingUser = repo.findByEmail(userRequest.getEmail());
 		if (existingUser != null) {
-			userAlreadyExists = true;
-		}
-		// if not in database: create account
-		if(userAlreadyExists == false) {
-			String generatedPassword = new GeneratePassword().generateRandomString(10);
-			String encodedPassword = new PasswordEncoder().encode(generatedPassword);
-			User user = new User();
-			
-			user.setFirstName(userRequest.getFirstName());
-			user.setLastName(userRequest.getLastName());
-			user.setEmail(userRequest.getEmail());
-			user.setPassword(encodedPassword);
-			
-			// TODO - false by default, what if it is a admin?
-			user.setAdmin(false);
-			repo.save(user);
-			
-		// If already in database: error message
-		} else {
 			System.out.println("Email already exists.");
+			return;
 		}
-	}
+		
+		// if not in database: create account
+		String generatedPassword = new GeneratePassword().generateRandomString(10);
+		String encodedPassword = new PasswordEncoder().encode(generatedPassword);
+		User user = new User();
+			
+		user.setFirstName(userRequest.getFirstName());
+		user.setLastName(userRequest.getLastName());
+		user.setEmail(userRequest.getEmail());
+		user.setPassword(encodedPassword);
+		user.setEnabled(false);
+			
+		// TODO - WIM-12: admin false by default, what if it is a admin?
+		user.setAdmin(false);
+		repo.save(user);			
+}
 	
 	@GetMapping("user/all")
 	public List<User> findAllUsers(){
