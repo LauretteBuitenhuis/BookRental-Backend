@@ -43,6 +43,8 @@ public class UserController {
 		user.setEmail(userRequest.getEmail());
 		user.setPassword(encodedPassword);
 		user.setEnabled(false);
+		// User is logged out by default
+		user.setLogIn(false);
 			
 		// TODO - WIM-12: admin false by default, what if it is a admin?
 		user.setAdmin(false);
@@ -50,14 +52,26 @@ public class UserController {
 }
 	
 	@GetMapping("user/login")
-	public boolean userLogin(){
+	public void userLogin(){
 		System.out.println("Werkt!");
 		User userInlogMail=repo.findByEmail("hoi");
 		System.out.println("Id belonging to email is: " + userInlogMail.getId());
 		User userInlogPassword=repo.findByPassword("123");
 		System.out.println("Id belonging to password is: "+ userInlogPassword.getId());
-		return userInlogPassword.getId() == userInlogMail.getId();
 		
+		// To do: Also add email/password exist 
+		
+		if (userInlogPassword.getId() == userInlogMail.getId()) {
+			System.out.println("Successfull login");
+			
+			userInlogPassword.setLogIn(true);
+			repo.save(userInlogPassword);
+		}
+		
+		else
+		{
+			System.out.println("Invalid login");
+		}
 	}
 	
 	
