@@ -51,26 +51,36 @@ public class UserController {
 		repo.save(user);			
 }
 	
+	
 	@GetMapping("user/login")
-	public void userLogin(){
-		System.out.println("Werkt!");
-		User userInlogMail=repo.findByEmail("hoi");
-		System.out.println("Id belonging to email is: " + userInlogMail.getId());
-		User userInlogPassword=repo.findByPassword("123");
-		System.out.println("Id belonging to password is: "+ userInlogPassword.getId());
+	public void userLogin(@RequestBody User user){		
+		User userInlog = repo.findByEmail(user.getEmail());
 		
-		// To do: Also add email/password exist 
-		
-		if (userInlogPassword.getId() == userInlogMail.getId()) {
-			System.out.println("Successfull login");
-			
-			userInlogPassword.setLogIn(true);
-			repo.save(userInlogPassword);
+		// Check if mail address exist in database
+		if (userInlog==null){
+			System.out.println("User does not exist");
 		}
 		
-		else
-		{
-			System.out.println("Invalid login");
+		// Password correct?
+		if (userInlog.getPassword()==user.getPassword()) {
+			// set logged in boolean for this user
+			userInlog.setLogIn(true);
+			repo.save(userInlog);
+			
+			// TODO redirect to the page that was originally opened
+			
+			System.out.println("Successfull login");	
+		}
+		
+		else {
+			System.out.println("Password logged in with is " + userInlog.getPassword());
+			System.out.println("Password in database is " + user.getPassword());
+			System.out.println("boolean gives " + (userInlog.getPassword()==user.getPassword()));
+			
+			System.out.println("inlog password is of type " + (userInlog.getPassword()).getClass().getSimpleName()); 
+			System.out.println("database password is of type " + (user.getPassword()).getClass().getSimpleName()); 
+			
+			System.out.println("Invalid password, try again");
 		}
 	}
 	
