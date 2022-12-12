@@ -49,6 +49,18 @@ public class UserController {
 		repo.save(user);			
 }
 	
+	@GetMapping("user/login")
+	public boolean userLogin(){
+		System.out.println("Werkt!");
+		User userInlogMail=repo.findByEmail("hoi");
+		System.out.println("Id belonging to email is: " + userInlogMail.getId());
+		User userInlogPassword=repo.findByPassword("123");
+		System.out.println("Id belonging to password is: "+ userInlogPassword.getId());
+		return userInlogPassword.getId() == userInlogMail.getId();
+		
+	}
+	
+	
 	@GetMapping("user/all")
 	public List<User> findAllUsers(){
 		return repo.findAll();
