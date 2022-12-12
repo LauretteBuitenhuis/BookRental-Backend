@@ -111,8 +111,12 @@ public class User {
 	public List<Loan> getLoans() {
 		return loans;
 	}
-
-	public void setLoans(List<Loan> loans) {
-		this.loans = loans;
+	
+	public void addLoan(Loan loan) {
+		this.loans.add(loan);
+	}
+	
+	public void removeLoan(Loan loan) {
+		this.loans.remove(loan);
 	}
 }
