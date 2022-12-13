@@ -62,7 +62,7 @@ public class UserController {
 		}
 		
 		// Password correct?
-		if (userInlog.getPassword()==user.getPassword()) {
+		else if (userInlog.getPassword().equals(user.getPassword())) {
 			// set logged in boolean for this user
 			userInlog.setLogIn(true);
 			repo.save(userInlog);
@@ -73,13 +73,6 @@ public class UserController {
 		}
 		
 		else {
-			System.out.println("Password logged in with is " + userInlog.getPassword());
-			System.out.println("Password in database is " + user.getPassword());
-			System.out.println("boolean gives " + (userInlog.getPassword()==user.getPassword()));
-			
-			System.out.println("inlog password is of type " + (userInlog.getPassword()).getClass().getSimpleName()); 
-			System.out.println("database password is of type " + (user.getPassword()).getClass().getSimpleName()); 
-			
 			System.out.println("Invalid password, try again");
 		}
 	}
