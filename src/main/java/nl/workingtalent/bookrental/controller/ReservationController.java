@@ -32,8 +32,12 @@ public class ReservationController {
 		Book book = bookRepo.findById(bookId).get();
 		User user = userRepo.findById(userId).get();
 		Reservation reservation = new Reservation();
+		
+		book.addReservation(reservation);
 		reservation.setBook(book);
 		reservation.setUser(user);
+		
+		bookRepo.save(book);
 		reservationRepo.save(reservation);
 	}
 	

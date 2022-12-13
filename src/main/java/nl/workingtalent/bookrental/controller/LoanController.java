@@ -47,13 +47,13 @@ public class LoanController {
 		loan.setUser(user);
 		loan.setStartDate(date);
 
-		// Assign loan to user
+		// Assign loan to user and to the copy
 		user.addLoan(loan);
-
-		// Update user in database to include new loan
+		copy.addLoan(loan);
+	
+		// Update database to include new loan, and changes to other tables
+		copyRepo.save(copy);
 		userRepo.save(user);
-
-		// Store loan in database
 		loanRepo.save(loan);
 	}
 	

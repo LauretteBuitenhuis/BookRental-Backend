@@ -83,15 +83,23 @@ public class Book {
 		return copies;
 	}
 
-	public void setCopies(List<Copy> copies) {
-		this.copies = copies;
+	public void addCopy(Copy copy) {
+		this.copies.add(copy);
+	}
+	
+	public void removeCopy(Copy copy) {
+		this.copies.remove(copy);
 	}
 
 	public List<Reservation> getReservations() {
 		return reservations;
 	}
 
-	public void setReservations(List<Reservation> reservations) {
-		this.reservations = reservations;
+	public void addReservation(Reservation reservation) {
+		this.reservations.add(reservation);
+	}
+	
+	public void removeReservation(Reservation reservation) {
+		this.reservations.remove(reservation);
 	}
 }

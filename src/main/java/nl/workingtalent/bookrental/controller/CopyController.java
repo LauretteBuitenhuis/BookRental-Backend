@@ -22,9 +22,20 @@ public class CopyController {
 	private IBookRepository bookRepo;
 	
 	@PostMapping("copy/create/{bookId}")
-	public void createCopy(@RequestBody Copy copy, @PathVariable long bookId) {
+	public Copy createCopy(@PathVariable long bookId) {
 		Book book = bookRepo.findById(bookId).get();
+		Copy copy = new Copy();
+		
+		// Set copy values
+		copy.setGoodCondition(true);
+		copy.setInService(true);
 		copy.setBook(book);
+		
+		book.addCopy(copy);
+		
 		copyRepo.save(copy);
+		bookRepo.save(book);
+		
+		return copy;
 	}
 }
