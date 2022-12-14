@@ -3,6 +3,7 @@ package nl.workingtalent.bookrental.controller;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -35,7 +36,13 @@ public class UserController {
 		
 		// if not in database: create account
 		String generatedPassword = new GeneratePassword().generateRandomString(10);
+		
+		// show random generated password for development
+		// TODO remove this line
+		System.out.println("The default password is " + generatedPassword);
+		
 		String encodedPassword = new PasswordEncoder().encode(generatedPassword);
+		System.out.println("The default ecoded password is " + encodedPassword);
 		User user = new User();
 			
 		user.setFirstName(userRequest.getFirstName());
@@ -56,13 +63,14 @@ public class UserController {
 	public void userLogin(@RequestBody User user){		
 		User userInlog = repo.findByEmail(user.getEmail());
 		
+		BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+		
 		// Check if mail address exist in database
 		if (userInlog==null){
 			System.out.println("User does not exist");
 		}
 		
-		// Password correct?
-		else if (userInlog.getPassword().equals(user.getPassword())) {
+		else if (passwordEncoder.matches(user.getPassword(),userInlog.getPassword())) {
 			// set logged in boolean for this user
 			userInlog.setLogIn(true);
 			repo.save(userInlog);
@@ -71,7 +79,7 @@ public class UserController {
 			
 			System.out.println("Successfull login");	
 		}
-		
+
 		else {
 			System.out.println("Invalid password, try again");
 		}
