@@ -19,38 +19,42 @@ import nl.workingtalent.bookrental.repository.IUserRepository;
 @RestController
 @CrossOrigin(maxAge = 3600)
 public class ReservationController {
-	
+
 	@Autowired
 	private IReservationRepository reservationRepo;
 	@Autowired
 	private IBookRepository bookRepo;
 	@Autowired
 	private IUserRepository userRepo;
-	
+	@Autowired
+	private LoanController loanController;
+
 	@PostMapping("reservation/create/{bookId}/{userId}")
 	public void createCopy(@PathVariable long bookId, @PathVariable long userId) {
 		Book book = bookRepo.findById(bookId).get();
 		User user = userRepo.findById(userId).get();
 		Reservation reservation = new Reservation();
-		
+
 		book.addReservation(reservation);
 		reservation.setBook(book);
 		reservation.setUser(user);
-		
+
 		bookRepo.save(book);
 		reservationRepo.save(reservation);
 	}
-	
+
 	@PostMapping("reservation/approve/{reservationId}/{copyId}/{toApprove}")
-	public void updateReservationApproval(@PathVariable long reservationId, @PathVariable long copyId, @PathVariable boolean toApprove) {
+	public void updateReservationApproval(@PathVariable long reservationId, @PathVariable long copyId,
+			@PathVariable boolean toApprove) {
 		Reservation reservation = reservationRepo.findById(reservationId).get();
-		
+
 		reservation.setApproved(toApprove);
-		
-		// Create loan 
-		LoanController loanController = new LoanController();
-		loanController.createLoan(copyId, reservation.getUser().getId());
-		
+
+		if (toApprove) {
+			// Create loan
+			loanController.createLoan(copyId, reservation.getUser().getId());
+		}
+
 		// TODO: remove reservation from database
 		reservationRepo.save(reservation);
 	}

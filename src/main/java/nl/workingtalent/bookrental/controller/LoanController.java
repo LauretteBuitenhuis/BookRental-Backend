@@ -24,8 +24,10 @@ public class LoanController {
 	
 	@Autowired
 	private ILoanRepository loanRepo;
+	
 	@Autowired
 	private ICopyRepository copyRepo;
+	
 	@Autowired
 	private IUserRepository userRepo;
 	
