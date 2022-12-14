@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Random;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -62,8 +63,14 @@ public class BookController {
 		}
 		
 		for (Book book : books) {
+			
 			Book databaseBook = createBook(book);
-			copyController.createCopy(databaseBook.getId());
+			
+			// Generate random amount of copies between 1 and 3
+			Random random = new Random();
+			for (int i =0; i < random.ints(1, 4).findFirst().getAsInt(); i++) {
+				copyController.createCopy(databaseBook.getId());
+			}
 		}
 		
 		return findAllBooks();

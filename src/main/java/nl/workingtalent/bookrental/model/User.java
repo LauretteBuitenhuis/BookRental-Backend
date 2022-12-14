@@ -1,5 +1,6 @@
 package nl.workingtalent.bookrental.model;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.Column;
@@ -31,18 +32,18 @@ public class User {
 	private String password;
 	
 	@Column(nullable = false)
-	private boolean admin;
+	private boolean admin = false;
 	
 	@Column(nullable = false)
-	private boolean enabled;
+	private boolean enabled = false;
 	
 	@JsonIgnore
 	@OneToMany(mappedBy = "user")
-	private List<Reservation> reservations;
+	private List<Reservation> reservations = new ArrayList<Reservation>();
 	
 	@JsonIgnore
 	@OneToMany(mappedBy = "user")
-	private List<Loan> loans;
+	private List<Loan> loans = new ArrayList<Loan>();
 
 	public long getId() {
 		return id;
