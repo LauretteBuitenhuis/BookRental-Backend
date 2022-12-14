@@ -57,7 +57,6 @@ public class BookController {
 		
 		try {
 			books = mapper.readValue(inputStream, collectionType);
-			return books;
 		} catch (IOException e) {
 			System.out.println("Error loading JSON file");
 		}

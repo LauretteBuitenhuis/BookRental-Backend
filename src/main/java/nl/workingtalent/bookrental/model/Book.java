@@ -1,5 +1,6 @@
 package nl.workingtalent.bookrental.model;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.Column;
@@ -13,6 +14,14 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 public class Book {
+
+	/*
+	 * public Book(String title, String author, String isbn) { super(); this.title =
+	 * title; this.author = author; this.isbn = isbn;
+	 * 
+	 * this.tags = new ArrayList<Tag>();; this.copies = new ArrayList<Copy>();
+	 * this.reservations = new ArrayList<Reservation>();; }
+	 */
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -29,15 +38,15 @@ public class Book {
 	
 	@JsonIgnore
 	@OneToMany(mappedBy = "book")
-	private List<Tag> tags;
+	private List<Tag> tags  = new ArrayList<Tag>();
 	
 	@JsonIgnore
 	@OneToMany(mappedBy = "book")
-	private List<Copy> copies;
+	private List<Copy> copies = new ArrayList<Copy>();
 	
 	@JsonIgnore
 	@OneToMany(mappedBy = "book")
-	private List<Reservation> reservations;
+	private List<Reservation> reservations  = new ArrayList<Reservation>();
 
 	public long getId() {
 		return id;
