@@ -33,7 +33,7 @@ public class User {
 	
 	@Column(nullable = false)
 	private boolean admin;
-	//hoi
+
 	@Column(nullable = false)
 	private boolean enabled;
 	
