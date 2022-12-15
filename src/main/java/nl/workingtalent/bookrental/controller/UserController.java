@@ -42,7 +42,7 @@ public class UserController {
 		}
 
 		String encodedPassword = passwordEncoder.encode(newUserDto.getPassword());
-		System.out.println("The default ecoded password is " + encodedPassword);
+		System.out.println("The default encoded password is " + encodedPassword);
 
 		User user = new User();	
 		user.setFirstName(newUserDto.getFirstName());
