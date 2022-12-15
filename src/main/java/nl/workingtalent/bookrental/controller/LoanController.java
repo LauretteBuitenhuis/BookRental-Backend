@@ -32,7 +32,7 @@ public class LoanController {
 	private IUserRepository userRepo;
 	
 	@PostMapping("loan/create/{copyId}/{userId}")
-	public void createLoan(@PathVariable long copyId, @PathVariable long userId) {	
+	public Loan createLoan(@PathVariable long copyId, @PathVariable long userId) {	
 		
 		// Get copy and user information from ids
 		Copy copy = copyRepo.findById(copyId).get();
@@ -57,6 +57,8 @@ public class LoanController {
 		copyRepo.save(copy);
 		userRepo.save(user);
 		loanRepo.save(loan);
+		
+		return loan;
 	}
 	
 	// TODO: Remove loan upon handing in book

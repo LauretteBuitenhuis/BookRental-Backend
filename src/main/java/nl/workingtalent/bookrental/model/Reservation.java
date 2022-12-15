@@ -15,7 +15,7 @@ public class Reservation {
 	private long id;
 	
 	@Column(nullable = false)
-	private boolean approved;
+	private String status = "PENDING";
 	
 	@ManyToOne(optional = false)
 	private Book book;
@@ -31,12 +31,12 @@ public class Reservation {
 		this.id = id;
 	}
 
-	public boolean isApproved() {
-		return approved;
+	public String getStatus() {
+		return status;
 	}
 
-	public void setApproved(boolean approved) {
-		this.approved = approved;
+	public void setStatus(String status) {
+		this.status = status;
 	}
 
 	public Book getBook() {

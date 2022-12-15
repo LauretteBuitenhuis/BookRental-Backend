@@ -2,6 +2,7 @@ package nl.workingtalent.bookrental.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -9,6 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import nl.workingtalent.bookrental.model.Book;
 import nl.workingtalent.bookrental.model.Copy;
+import nl.workingtalent.bookrental.model.Loan;
 import nl.workingtalent.bookrental.model.Reservation;
 import nl.workingtalent.bookrental.model.User;
 import nl.workingtalent.bookrental.repository.IBookRepository;
@@ -29,33 +31,39 @@ public class ReservationController {
 	@Autowired
 	private LoanController loanController;
 
-	@PostMapping("reservation/create/{bookId}/{userId}")
-	public void createCopy(@PathVariable long bookId, @PathVariable long userId) {
+	@GetMapping("reservation/create/{bookId}/{userId}")
+	public Reservation createCopy(@PathVariable long bookId, @PathVariable long userId) {
 		Book book = bookRepo.findById(bookId).get();
 		User user = userRepo.findById(userId).get();
 		Reservation reservation = new Reservation();
-
-		book.addReservation(reservation);
+	
+		reservation.setStatus("PENDING");
 		reservation.setBook(book);
 		reservation.setUser(user);
+		
+		book.addReservation(reservation);
 
 		bookRepo.save(book);
 		reservationRepo.save(reservation);
+		
+		return reservation;
 	}
 
-	@PostMapping("reservation/approve/{reservationId}/{copyId}/{toApprove}")
-	public void updateReservationApproval(@PathVariable long reservationId, @PathVariable long copyId,
+	@GetMapping("reservation/approve/{reservationId}/{copyId}/{toApprove}")
+	public Loan updateReservationApproval(@PathVariable long reservationId, @PathVariable long copyId,
 			@PathVariable boolean toApprove) {
 		Reservation reservation = reservationRepo.findById(reservationId).get();
 
-		reservation.setApproved(toApprove);
+		reservation.setStatus(toApprove ? "APPROVED" : "DENIED");
 
+		reservationRepo.save(reservation);
+		
 		if (toApprove) {
 			// Create loan
-			loanController.createLoan(copyId, reservation.getUser().getId());
+			Loan loan = loanController.createLoan(copyId, reservation.getUser().getId());
+			return loan;
 		}
 
-		// TODO: remove reservation from database
-		reservationRepo.save(reservation);
+		return null;
 	}
 }
