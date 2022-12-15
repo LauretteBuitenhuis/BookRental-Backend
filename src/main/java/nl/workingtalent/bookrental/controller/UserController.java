@@ -16,6 +16,7 @@ import nl.workingtalent.bookrental.dto.LoginDto;
 import nl.workingtalent.bookrental.dto.NewUserDto;
 import nl.workingtalent.bookrental.model.User;
 import nl.workingtalent.bookrental.repository.IUserRepository;
+import nl.workingtalent.bookrental.services.EmailService;
 
 @RestController
 @CrossOrigin(maxAge = 3600)
@@ -26,10 +27,15 @@ public class UserController {
 	@Autowired
 	private IUserRepository repo;
 	
+	@Autowired
+	private EmailService emailService;
+	
 	@PostMapping("user/create")
 	public String createUser(@RequestHeader(name = "Authorization") String token, @RequestBody NewUserDto newUserDto) {
+		
 		User loggedInUser = repo.findByToken(token);
 
+		// Check if user had Admin rights
 		if (loggedInUser == null || !loggedInUser.isAdmin()) {
 			return "No permission";
 		}
@@ -37,13 +43,10 @@ public class UserController {
 		// Check if user already exists in database by email
 		User existingUser = repo.findByEmail(newUserDto.getEmail());
 		if (existingUser != null) {
-			System.out.println("Email already exists.");
-			return "Email exists";
+			return "Email already exists";
 		}
-
+		
 		String encodedPassword = passwordEncoder.encode(newUserDto.getPassword());
-		System.out.println("The default encoded password is " + encodedPassword);
-
 		User user = new User();	
 		user.setFirstName(newUserDto.getFirstName());
 		user.setLastName(newUserDto.getLastName());
@@ -54,8 +57,11 @@ public class UserController {
 		
 		repo.save(user);
 		
+		// Send email verification
+		emailService.sendEmail(newUserDto);
+		
 		return null;
-	}
+ 	}
 	
 	
 	@PostMapping("user/login")
