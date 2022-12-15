@@ -4,71 +4,75 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
+import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.CollectionType;
 
+import nl.workingtalent.bookrental.dto.LoginDto;
+import nl.workingtalent.bookrental.dto.NewUserDto;
 import nl.workingtalent.bookrental.model.Book;
-import nl.workingtalent.bookrental.model.GeneratePassword;
-import nl.workingtalent.bookrental.model.NewUser;
-import nl.workingtalent.bookrental.model.PasswordEncoder;
 import nl.workingtalent.bookrental.model.User;
 import nl.workingtalent.bookrental.repository.IUserRepository;
 
 @RestController
 @CrossOrigin(maxAge = 3600)
 public class UserController {
-
+	
+	private BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+	
 	@Autowired
 	private IUserRepository repo;
-
+	
 	@PostMapping("user/create")
-	public void createUser(@RequestBody NewUser userRequest) {
-		// TODO - WIM-12: check if user is admin (Authorised to create new user)
+	public String createUser(@RequestHeader(name = "Authorization") String token, @RequestBody NewUserDto newUserDto) {
+		User loggedInUser = repo.findByToken(token);
 
+		if (loggedInUser == null || !loggedInUser.isAdmin()) {
+			return "No permission";
+		}
+		
 		// Check if user already exists in database by email
-		User existingUser = repo.findByEmail(userRequest.getEmail());
+		User existingUser = repo.findByEmail(newUserDto.getEmail());
 		if (existingUser != null) {
 			System.out.println("Email already exists.");
-			return;
+			return "Email exists";
 		}
 
-		// if not in database: create account
-		String generatedPassword = new GeneratePassword().generateRandomString(10);
-		String encodedPassword = new PasswordEncoder().encode(generatedPassword);
-		User user = new User();
+		String encodedPassword = passwordEncoder.encode(newUserDto.getPassword());
+		System.out.println("The default ecoded password is " + encodedPassword);
 
-		user.setFirstName(userRequest.getFirstName());
-		user.setLastName(userRequest.getLastName());
-		user.setEmail(userRequest.getEmail());
+		User user = new User();	
+		user.setFirstName(newUserDto.getFirstName());
+		user.setLastName(newUserDto.getLastName());
+		user.setEmail(newUserDto.getEmail());
 		user.setPassword(encodedPassword);
 		user.setEnabled(false);
-
-		// TODO - WIM-12: admin false by default, what if it is a admin?
-		user.setAdmin(false);
+		user.setAdmin(newUserDto.isAdmin());
+		
 		repo.save(user);
-	}
-
-	@GetMapping("user/all")
-	public List<User> findAllUsers() {
-		return repo.findAll();
+		
+		return null;
 	}
 	
 	@GetMapping("dummydata/users")
-	public List<User> insertDummyBooks() {
+	public List<User> insertDummyUsers() {
 		ObjectMapper mapper = new ObjectMapper();
 		
 		InputStream inputStream = Book.class.getResourceAsStream("/dummy-users.json");
-		CollectionType collectionType = mapper.getTypeFactory().constructCollectionType(List.class, NewUser.class);
+		CollectionType collectionType = mapper.getTypeFactory().constructCollectionType(List.class, NewUserDto.class);
 
-		List<NewUser> users = new ArrayList<NewUser>();
+		List<NewUserDto> users = new ArrayList<NewUserDto>();
 		
 		try {
 			users = mapper.readValue(inputStream, collectionType);
@@ -76,12 +80,43 @@ public class UserController {
 			System.out.println("Error loading JSON file");
 		}
 		
-		for (NewUser user : users) {
+		for (NewUserDto user : users) {
 			
-			createUser(user);
-			
+			// Admin account needs to exist for proper rights
+			createUser("admin", user);
 		}
 		
 		return findAllUsers();
     }
+	
+	
+	@PostMapping("user/login")
+	public String userLogin(@RequestBody LoginDto loginDto) {		
+		User foundUser = repo.findByEmail(loginDto.getEmail());
+		
+		// Check if mail address exist in database
+		if (foundUser == null) {
+			System.out.println("User does not exist");
+			return null;
+		}
+		
+		if (passwordEncoder.matches(loginDto.getPassword(), foundUser.getPassword())) {
+			foundUser.setToken(RandomStringUtils.random(150, true, true));
+			repo.save(foundUser);
+			
+			System.out.println("Successfull login");
+			
+			return foundUser.getToken();
+		}
+
+		System.out.println("Invalid password, try again");
+		
+		return null;
+	}
+	
+	
+	@GetMapping("user/all")
+	public List<User> findAllUsers(){
+		return repo.findAll();
+	}
 }
