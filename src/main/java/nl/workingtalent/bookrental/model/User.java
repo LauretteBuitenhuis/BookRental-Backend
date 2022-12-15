@@ -14,6 +14,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 @Entity
 public class User {
 
+	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long id;
@@ -32,7 +33,7 @@ public class User {
 	
 	@Column(nullable = false)
 	private boolean admin;
-	
+	//hoi
 	@Column(nullable = false)
 	private boolean enabled;
 	
