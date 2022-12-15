@@ -36,12 +36,13 @@ public class User {
 	@Column(nullable = false)
 	private boolean enabled;
 	
-	@Column(nullable = false)
-	private boolean logIn;
+	@Column(nullable = true, length = 200, unique = true)
+	private String token;
 	
 	@JsonIgnore
 	@OneToMany(mappedBy = "user")
 	private List<Reservation> reservations;
+
 	@JsonIgnore
 	@OneToMany(mappedBy = "user")
 	private List<Loan> loans;
@@ -102,12 +103,12 @@ public class User {
 		this.enabled = enabled;
 	}
 	
-	public boolean isLogIn() {
-		return logIn;
+	public String getToken() {
+		return token;
 	}
-
-	public void setLogIn(boolean logIn) {
-		this.logIn = logIn;
+	
+	public void setToken(String token) {
+		this.token = token;
 	}
 
 	public List<Reservation> getReservations() {

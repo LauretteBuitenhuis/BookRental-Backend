@@ -2,17 +2,18 @@ package nl.workingtalent.bookrental.controller;
 
 import java.util.List;
 
+import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 
-import nl.workingtalent.bookrental.model.GeneratePassword;
-import nl.workingtalent.bookrental.model.NewUser;
-import nl.workingtalent.bookrental.model.PasswordEncoder;
+import nl.workingtalent.bookrental.dto.LoginDto;
+import nl.workingtalent.bookrental.dto.NewUserDto;
 import nl.workingtalent.bookrental.model.User;
 import nl.workingtalent.bookrental.repository.IUserRepository;
 
@@ -20,69 +21,65 @@ import nl.workingtalent.bookrental.repository.IUserRepository;
 @CrossOrigin(maxAge = 3600)
 public class UserController {
 	
+	private BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+	
 	@Autowired
 	private IUserRepository repo;
 	
 	@PostMapping("user/create")
-	public void createUser(@RequestBody NewUser userRequest) {
-		// TODO - WIM-12: check if user is admin (Authorised to create new user)
+	public String createUser(@RequestHeader(name = "Authorization") String token, @RequestBody NewUserDto newUserDto) {
+		User loggedInUser = repo.findByToken(token);
+
+		if (loggedInUser == null || !loggedInUser.isAdmin()) {
+			return "No permission";
+		}
 		
 		// Check if user already exists in database by email
-		User existingUser = repo.findByEmail(userRequest.getEmail());
+		User existingUser = repo.findByEmail(newUserDto.getEmail());
 		if (existingUser != null) {
 			System.out.println("Email already exists.");
-			return;
-		}
-		
-		// if not in database: create account
-		String generatedPassword = new GeneratePassword().generateRandomString(10);
-		
-		// show random generated password for development
-		// TODO remove this line
-		System.out.println("The default password is " + generatedPassword);
-		
-		String encodedPassword = new PasswordEncoder().encode(generatedPassword);
-		System.out.println("The default ecoded password is " + encodedPassword);
-		User user = new User();
-			
-		user.setFirstName(userRequest.getFirstName());
-		user.setLastName(userRequest.getLastName());
-		user.setEmail(userRequest.getEmail());
-		user.setPassword(encodedPassword);
-		user.setEnabled(false);
-		// User is logged out by default
-		user.setLogIn(false);
-			
-		// TODO - WIM-12: admin false by default, what if it is a admin?
-		user.setAdmin(false);
-		repo.save(user);			
-}
-	
-	
-	@GetMapping("user/login")
-	public void userLogin(@RequestBody User user){		
-		User userInlog = repo.findByEmail(user.getEmail());
-		
-		BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-		
-		// Check if mail address exist in database
-		if (userInlog==null){
-			System.out.println("User does not exist");
-		}
-		
-		else if (passwordEncoder.matches(user.getPassword(),userInlog.getPassword())) {
-			// set logged in boolean for this user
-			userInlog.setLogIn(true);
-			repo.save(userInlog);
-			
-			// TODO redirect to the page that was originally opened
-			
-			System.out.println("Successfull login");	
+			return "Email exists";
 		}
 
-		else {
-			System.out.println("Invalid password, try again");
+		String encodedPassword = passwordEncoder.encode(newUserDto.getPassword());
+		System.out.println("The default ecoded password is " + encodedPassword);
+
+		User user = new User();	
+		user.setFirstName(newUserDto.getFirstName());
+		user.setLastName(newUserDto.getLastName());
+		user.setEmail(newUserDto.getEmail());
+		user.setPassword(encodedPassword);
+		user.setEnabled(false);
+		user.setAdmin(newUserDto.isAdmin());
+		
+		repo.save(user);
+		
+		return null;
+	}
+	
+	
+	@PostMapping("user/login")
+	public String userLogin(@RequestBody LoginDto loginDto) {		
+		User foundUser = repo.findByEmail(loginDto.getEmail());
+		
+		// Check if mail address exist in database
+		if (foundUser == null) {
+			System.out.println("User does not exist");
+			return null;
 		}
+		
+		if (passwordEncoder.matches(loginDto.getPassword(), foundUser.getPassword())) {
+			foundUser.setToken(RandomStringUtils.random(150, true, true));
+			repo.save(foundUser);
+			
+			System.out.println("Successfull login");
+			
+			return foundUser.getToken();
+		}
+
+		System.out.println("Invalid password, try again");
+		
+		return null;
 	}
 	
 	
