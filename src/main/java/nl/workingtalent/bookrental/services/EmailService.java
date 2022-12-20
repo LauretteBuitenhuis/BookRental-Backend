@@ -18,7 +18,6 @@ public class EmailService {
 	
 	public void sendEmail(NewUserDto newUserDto) {
 		
-		// TODO - create front end 8082/user/activate
 		String activationUrl = "http://localhost:8082/user/activate";
 		String from = "no-reply@workingtalent.nl";
 		String to = newUserDto.getEmail();

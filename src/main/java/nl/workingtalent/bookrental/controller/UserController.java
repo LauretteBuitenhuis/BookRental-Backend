@@ -35,7 +35,7 @@ public class UserController {
 		
 		User loggedInUser = repo.findByToken(token);
 
-		// Check if user had Admin rights
+		// Check if user has Admin rights
 		if (loggedInUser == null || !loggedInUser.isAdmin()) {
 			return "No permission";
 		}
@@ -68,7 +68,7 @@ public class UserController {
 	public String userLogin(@RequestBody LoginDto loginDto) {		
 		User foundUser = repo.findByEmail(loginDto.getEmail());
 		
-		// Check if mail address exist in database
+		// Check if mail address exists in database
 		if (foundUser == null) {
 			System.out.println("User does not exist");
 			return null;
