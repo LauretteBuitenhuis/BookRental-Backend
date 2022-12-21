@@ -68,12 +68,18 @@ public class ReservationController {
 		if (!userController.CheckUserPermissions(token)) return null;
 		
 		Reservation reservation = reservationRepo.findById(reservationId).get();
+		Copy copy = copyRepo.findById(copyId).get();
 		
 		// Check if copy matches book
-		if (reservation.getBook() != copyRepo.findById(copyId).get().getBook()) {
+		if (reservation.getBook() != copy.getBook()) {
 			// Book does not match copy
 			return null; // TODO: Change to status return
 		}
+
+		// Check if copy is in service
+		if (!copy.isInService()) return null; // TODO: Change to status return
+		
+		// TODO: Add check about whether copy is not already rented out
 
 		reservation.setStatus(toApprove ? "APPROVED" : "DENIED");
 
