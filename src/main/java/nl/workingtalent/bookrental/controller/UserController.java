@@ -29,7 +29,7 @@ public class UserController {
 	@PostMapping("user/create")
 	public String createUser(@RequestHeader(name = "Authorization") String token, @RequestBody NewUserDto newUserDto) {
 		User loggedInUser = repo.findByToken(token);
-
+		//TODO add error codes 
 		if (loggedInUser == null || !loggedInUser.isAdmin()) {
 			return "No permission";
 		}
@@ -42,16 +42,12 @@ public class UserController {
 		}
 
 		String encodedPassword = passwordEncoder.encode(newUserDto.getPassword());
-		System.out.println("The default ecoded password is " + encodedPassword);
-
-		User user = new User();	
-		user.setFirstName(newUserDto.getFirstName());
-		user.setLastName(newUserDto.getLastName());
-		user.setEmail(newUserDto.getEmail());
-		user.setPassword(encodedPassword);
-		user.setEnabled(false);
-		user.setAdmin(newUserDto.isAdmin());
-		
+		// TODO constructor		
+		User user = new User(newUserDto.getFirstName(), 
+				newUserDto.getLastName(), 
+				newUserDto.getEmail(), 
+				encodedPassword, 
+				newUserDto.isAdmin(),false);
 		repo.save(user);
 		
 		return null;

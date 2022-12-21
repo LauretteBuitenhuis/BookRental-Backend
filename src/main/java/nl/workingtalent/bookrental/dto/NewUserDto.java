@@ -1,14 +1,14 @@
 package nl.workingtalent.bookrental.dto;
 
 public class NewUserDto {
-
+	// TODO Final&id (request & send dto) & constructor
 	private String firstName;	
 	private String lastName;	
 	private String email;
 	private String password;
 	private boolean admin;
 	
-	
+	// TODO setters weg
 	public String getFirstName() {
 		return firstName;
 	}

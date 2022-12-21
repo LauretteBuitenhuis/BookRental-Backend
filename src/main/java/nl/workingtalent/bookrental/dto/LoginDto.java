@@ -1,25 +1,26 @@
 package nl.workingtalent.bookrental.dto;
 
-public class LoginDto {
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-	private String email;
+public class LoginDto {
+	private final String email;
+	private final String password;
+
+	@JsonCreator
+	public LoginDto(@JsonProperty("email") String email, @JsonProperty("password") String password) {
+		this.email = email;
+		this.password = password;
+	}
+
 	
-	private String password;
 
 	public String getEmail() {
 		return email;
 	}
 
-	public void setEmail(String email) {
-		this.email = email;
-	}
-
 	public String getPassword() {
 		return password;
-	}
-
-	public void setPassword(String password) {
-		this.password = password;
 	}
 	
 }

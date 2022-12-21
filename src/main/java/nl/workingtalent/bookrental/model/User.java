@@ -13,8 +13,21 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 public class User {
-
 	
+		public User() {
+		// TODO Spring need this Default constructor. Add some status code?
+	}
+
+	public User(String firstName, String lastName, String email, String password, boolean admin,
+			boolean enabled) {
+		this.firstName = firstName;
+		this.lastName = lastName;
+		this.email = email;
+		this.password = password;
+		this.admin = admin;
+		this.enabled = enabled;
+	}
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long id;
@@ -35,7 +48,7 @@ public class User {
 	private boolean admin;
 
 	@Column(nullable = false)
-	private boolean enabled;
+	private boolean enabled; // activated
 	
 	@Column(nullable = true, length = 200, unique = true)
 	private String token;
