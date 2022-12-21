@@ -60,7 +60,8 @@ public class ReservationController {
 
 	// TODO: Change to status return, does not need to return anything at all
 	@GetMapping("reservation/approve/{reservationId}/{copyId}/{toApprove}")
-	public Loan updateReservationApproval(@RequestHeader(name = "Authorization") String token, @PathVariable long reservationId, @PathVariable long copyId,
+	public Loan updateReservationApproval(@RequestHeader(name = "Authorization") String token, 
+			@PathVariable long reservationId, @PathVariable long copyId,
 			@PathVariable boolean toApprove) {
 		
 		// TODO: Change to return status object instead
