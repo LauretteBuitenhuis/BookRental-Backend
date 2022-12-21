@@ -64,7 +64,7 @@ public class UserController {
 		return new ResponseStatusException(HttpStatus.CREATED, "User created"); // 201
  	}
 	
-
+	// TODO fix: Direct self-reference leading to cycle 
 	@PostMapping("user/login")
 	public ResponseStatusException userLogin(@RequestBody LoginDto loginDto) {		
 		User foundUser = repo.findByEmail(loginDto.getEmail());
