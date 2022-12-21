@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -33,18 +34,19 @@ public class UserController {
 	private EmailService emailService;
 	
 	@PostMapping("user/create")
-	public ResponseStatusException createUser(@RequestHeader(name = "Authorization") String token, @RequestBody NewUserDto newUserDto) {
+	@ResponseStatus(code=HttpStatus.CREATED)
+	public long createUser(@RequestHeader(name = "Authorization") String token, @RequestBody NewUserDto newUserDto) {
 		
 		User loggedInUser = repo.findByToken(token);
 
 		// Check if user has Admin rights
 		if (loggedInUser == null || !loggedInUser.isAdmin()) 
-			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "No permission"); // 401
+			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "No permission");
 		
 		// Check if user already exists in database by email
 		User existingUser = repo.findByEmail(newUserDto.getEmail());
 		if (existingUser != null) {
-			throw new ResponseStatusException(HttpStatus.CONFLICT, "User already exists"); // 409
+			throw new ResponseStatusException(HttpStatus.CONFLICT, "User already exists");
 		}
 		
 		String encodedPassword = passwordEncoder.encode(newUserDto.getPassword());
@@ -56,34 +58,34 @@ public class UserController {
 		user.setEnabled(false);
 		user.setAdmin(newUserDto.isAdmin());
 		
-		repo.save(user);
+		User createdUser = repo.save(user);
 		
 		// Send email verification
 		emailService.sendEmail(newUserDto);
 		
-		return new ResponseStatusException(HttpStatus.CREATED, "User created"); // 201
+		return createdUser.getId(); 
  	}
 	
-	// TODO fix: Direct self-reference leading to cycle 
+	
 	@PostMapping("user/login")
-	public ResponseStatusException userLogin(@RequestBody LoginDto loginDto) {		
+	public String userLogin(@RequestBody LoginDto loginDto) {		
 		User foundUser = repo.findByEmail(loginDto.getEmail());
 		
-		// Check if mail address exists in database
 		if (foundUser == null) {
-			return new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"); // 404
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
 		}
 		
-		if (passwordEncoder.matches(loginDto.getPassword(), foundUser.getPassword())) {
-			foundUser.setToken(RandomStringUtils.random(150, true, true));
-			repo.save(foundUser);
-			
-			System.out.println(foundUser.getToken());
-			
-			return new ResponseStatusException(HttpStatus.OK, "Login succesful"); // 200
+		boolean hasMatchingPassword = passwordEncoder.matches(loginDto.getPassword(), foundUser.getPassword());
+		
+		if (!hasMatchingPassword) {
+			throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Wrong username or password, please try again");
 		}
 		
-		return new ResponseStatusException(HttpStatus.FORBIDDEN, "Invalid, please try again"); // 403
+		String token = RandomStringUtils.random(150, true, true);
+		foundUser.setToken(token);
+		repo.save(foundUser);
+					
+		return token;
 	}
 	
 	
