@@ -10,6 +10,13 @@ import javax.persistence.ManyToOne;
 @Entity
 public class Loan {
 
+	public Loan(String startDate, User user, Copy copy) {
+		super();
+		this.startDate = startDate;
+		this.user = user;
+		this.copy = copy;
+	}
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long id;

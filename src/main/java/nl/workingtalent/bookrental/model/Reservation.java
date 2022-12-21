@@ -10,6 +10,13 @@ import javax.persistence.ManyToOne;
 @Entity
 public class Reservation {
 
+	public Reservation(String status, Book book, User user) {
+		super();
+		this.status = status;
+		this.book = book;
+		this.user = user;
+	}
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long id;

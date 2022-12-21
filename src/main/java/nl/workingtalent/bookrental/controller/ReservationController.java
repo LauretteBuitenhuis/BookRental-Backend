@@ -31,15 +31,12 @@ public class ReservationController {
 	@Autowired
 	private LoanController loanController;
 
+	// TODO: Change to status return, does not need to return anything at all
 	@GetMapping("reservation/create/{bookId}/{userId}")
-	public Reservation createCopy(@PathVariable long bookId, @PathVariable long userId) {
+	public Reservation createReservation(@PathVariable long bookId, @PathVariable long userId) {
 		Book book = bookRepo.findById(bookId).get();
 		User user = userRepo.findById(userId).get();
-		Reservation reservation = new Reservation();
-	
-		reservation.setStatus("PENDING");
-		reservation.setBook(book);
-		reservation.setUser(user);
+		Reservation reservation = new Reservation("PENDING", book, user);
 		
 		book.addReservation(reservation);
 
@@ -49,6 +46,7 @@ public class ReservationController {
 		return reservation;
 	}
 
+	// TODO: Change to status return, does not need to return anything at all
 	@GetMapping("reservation/approve/{reservationId}/{copyId}/{toApprove}")
 	public Loan updateReservationApproval(@PathVariable long reservationId, @PathVariable long copyId,
 			@PathVariable boolean toApprove) {
@@ -60,6 +58,7 @@ public class ReservationController {
 		
 		if (toApprove) {
 			// Create loan
+			// TODO: remove return and storing of loan, is unnecessary
 			Loan loan = loanController.createLoan(copyId, reservation.getUser().getId());
 			return loan;
 		}

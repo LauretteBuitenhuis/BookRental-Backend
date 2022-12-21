@@ -31,6 +31,7 @@ public class LoanController {
 	@Autowired
 	private IUserRepository userRepo;
 	
+	// TODO: Change to status return, does not need to return anything at all
 	@PostMapping("loan/create/{copyId}/{userId}")
 	public Loan createLoan(@PathVariable long copyId, @PathVariable long userId) {	
 		
@@ -44,10 +45,7 @@ public class LoanController {
 		String date = dtf.format(now);
 
 		// Create new loan
-		Loan loan = new Loan();
-		loan.setCopy(copy);
-		loan.setUser(user);
-		loan.setStartDate(date);
+		Loan loan = new Loan(date, user, copy);
 
 		// Assign loan to user and to the copy
 		user.addLoan(loan);

@@ -21,15 +21,11 @@ public class CopyController {
 	@Autowired
 	private IBookRepository bookRepo;
 	
+	// TODO change from Copy to status. Does not need to return the created copy.
 	@PostMapping("copy/create/{bookId}")
 	public Copy createCopy(@PathVariable long bookId) {
 		Book book = bookRepo.findById(bookId).get();
-		Copy copy = new Copy();
-		
-		// Set copy values
-		copy.setGoodCondition(true);
-		copy.setInService(true);
-		copy.setBook(book);
+		Copy copy = new Copy(true, book);
 		
 		book.addCopy(copy);
 		
