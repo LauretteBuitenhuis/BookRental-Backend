@@ -10,6 +10,8 @@ import javax.persistence.ManyToOne;
 @Entity
 public class Loan {
 
+	public Loan() {}
+	
 	public Loan(String startDate, User user, Copy copy) {
 		super();
 		this.startDate = startDate;

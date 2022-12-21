@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -24,7 +25,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.CollectionType;
 
 import nl.workingtalent.bookrental.model.Book;
+import nl.workingtalent.bookrental.model.User;
 import nl.workingtalent.bookrental.repository.IBookRepository;
+import nl.workingtalent.bookrental.repository.IUserRepository;
 
 @RestController
 @CrossOrigin(maxAge = 3600)
@@ -34,16 +37,30 @@ public class BookController {
 	private IBookRepository repo;
 	
 	@Autowired
+	private IUserRepository userRepo;
+	
+	@Autowired
+	private UserController userController;
+	
+	@Autowired
 	private CopyController copyController;
 	
 	@PostMapping("book/create")
-	public Book createBook(@RequestBody Book book) {
+	public Book createBook(@RequestHeader(name = "Authorization") String token, @RequestBody Book book) {
+		
+		// TODO: Change to return status object instead
+		if (!userController.CheckUserPermissions(token)) return null;
+		
 		repo.save(book);
 		return book;
 	}
 	
 	@DeleteMapping("book/{id}/delete")
-	public void delete(@PathVariable long id) {
+	public void delete(@RequestHeader(name = "Authorization") String token, @PathVariable long id) {
+		
+		// TODO: Change to return status object instead
+		if (!userController.CheckUserPermissions(token)) return;
+		
 		repo.deleteById(id);
 	}
 	
@@ -64,12 +81,12 @@ public class BookController {
 		
 		for (Book book : books) {
 			
-			Book databaseBook = createBook(book);
+			Book databaseBook = createBook("admin", book);
 			
 			// Generate random amount of copies between 1 and 3
 			Random random = new Random();
 			for (int i =0; i < random.ints(1, 4).findFirst().getAsInt(); i++) {
-				copyController.createCopy(databaseBook.getId());
+				copyController.createCopy("admin", databaseBook.getId());
 			}
 		}
 		
@@ -77,7 +94,11 @@ public class BookController {
     }
 	
 	@PutMapping("book/{id}/edit")
-	public void editBook(@RequestBody Book book, @PathVariable long id) {
+	public void editBook(@RequestHeader(name = "Authorization") String token, @RequestBody Book book, @PathVariable long id) {
+		
+		// TODO: Change to return status object instead
+		if (!userController.CheckUserPermissions(token)) return;
+		
 		Book prevBook = repo.findById(id).get();
 		
 		prevBook.setAuthor(book.getAuthor());

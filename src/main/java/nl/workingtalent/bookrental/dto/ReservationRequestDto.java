@@ -13,12 +13,12 @@ public class ReservationRequestDto {
 		this.user = user;
 	}
 
-	private int id;
+	private long id;
 	private String status;
 	private Book book;
 	private User user;
 	
-	public int getId() {
+	public long getId() {
 		return id;
 	}
 	

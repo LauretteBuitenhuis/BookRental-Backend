@@ -15,6 +15,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 @Entity
 public class Copy {
 
+	public Copy() {}
+	
 	public Copy(boolean inService, Book book) {
 		super();
 		this.inService = inService;

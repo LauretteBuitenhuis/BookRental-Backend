@@ -10,6 +10,8 @@ import javax.persistence.ManyToOne;
 @Entity
 public class Reservation {
 
+	public Reservation(){}
+	
 	public Reservation(String status, Book book, User user) {
 		super();
 		this.status = status;

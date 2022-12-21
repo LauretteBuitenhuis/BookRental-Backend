@@ -114,6 +114,62 @@ public class UserController {
 		return null;
 	}
 	
+	// TODO: Change return type to status
+	public boolean CheckLoggedInUser(String token)
+	{
+		User loggedInUser = repo.findByToken(token);
+		
+		if (loggedInUser == null) {
+			// TODO: Redirect user to login page
+			return false; // User not logged in
+		}
+		
+		// User is logged in, add success code
+		return true;
+	}
+	
+	// TODO: Change return type to status
+	public boolean CheckUserPermissions(String token)
+	{
+		// Override permissions if it is an automated process 
+		if (token.equalsIgnoreCase("admin")) return true;
+		
+		// Check if user is logged in
+		if (!CheckLoggedInUser(token)) { 
+			return false;
+		}
+		
+		User loggedInUser = repo.findByToken(token);
+		
+		if (!loggedInUser.isAdmin()) {
+			// User has invalid permissions
+			return false;
+		}
+		
+		// User is logged in, and has admin permissions
+		return true;
+	}
+	
+	// TODO: Change return type to status
+	public boolean CheckUserId(String token, long userId) {
+		
+		// Check if user is logged in
+		if (!CheckLoggedInUser(token)) { 
+			return false;
+		}
+		
+		// Override permission check if an admin does it
+		if (CheckUserPermissions(token)) {
+			return true;
+		}
+		
+		User loggedInUser = repo.findByToken(token);
+		
+		// Check if intended user id is the same as the actual user id
+		// This is done to prevent changing 
+		return userId == loggedInUser.getId();
+	}
+	
 	
 	@GetMapping("user/all")
 	public List<User> findAllUsers(){

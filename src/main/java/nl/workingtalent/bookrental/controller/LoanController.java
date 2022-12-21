@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.format.DateTimeFormatter;  
@@ -31,9 +32,15 @@ public class LoanController {
 	@Autowired
 	private IUserRepository userRepo;
 	
+	@Autowired 
+	private UserController userController;
+	
 	// TODO: Change to status return, does not need to return anything at all
 	@PostMapping("loan/create/{copyId}/{userId}")
-	public Loan createLoan(@PathVariable long copyId, @PathVariable long userId) {	
+	public Loan createLoan(@RequestHeader(name = "Authorization") String token, @PathVariable long copyId, @PathVariable long userId) {	
+		
+		// TODO: Change to return status object instead
+		if (!userController.CheckUserPermissions(token)) return null;
 		
 		// Get copy and user information from ids
 		Copy copy = copyRepo.findById(copyId).get();

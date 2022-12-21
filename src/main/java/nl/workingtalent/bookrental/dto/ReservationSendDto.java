@@ -12,12 +12,12 @@ public class ReservationSendDto {
 		this.user = user;
 	}
 	
-	private int id;
+	private long id;
 	private String status;
 	private Book book;
 	private User user;
 
-	public void setId(int id) {
+	public void setId(long id) {
 		this.id = id;
 	}
 
@@ -33,7 +33,7 @@ public class ReservationSendDto {
 		this.user = user;
 	}
 	
-	public int getId() {
+	public long getId() {
 		return id;
 	}
 	
