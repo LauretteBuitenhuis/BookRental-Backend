@@ -38,10 +38,11 @@ public class UserController {
 	public long createUser(@RequestHeader(name = "Authorization") String token, @RequestBody NewUserDto newUserDto) {
 		
 		User loggedInUser = repo.findByToken(token);
-
+    
 		// Check if user has Admin rights
 		if (loggedInUser == null || !loggedInUser.isAdmin()) 
 			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "No permission");
+
 		
 		// Check if user already exists in database by email
 		User existingUser = repo.findByEmail(newUserDto.getEmail());
@@ -50,15 +51,13 @@ public class UserController {
 		}
 		
 		String encodedPassword = passwordEncoder.encode(newUserDto.getPassword());
-		User user = new User();	
-		user.setFirstName(newUserDto.getFirstName());
-		user.setLastName(newUserDto.getLastName());
-		user.setEmail(newUserDto.getEmail());
-		user.setPassword(encodedPassword);
-		user.setEnabled(false);
-		user.setAdmin(newUserDto.isAdmin());
 		
-		User createdUser = repo.save(user);
+		User user = new User(newUserDto.getFirstName(), 
+				newUserDto.getLastName(), 
+				newUserDto.getEmail(), 
+				encodedPassword, 
+				newUserDto.isAdmin(),false);
+		repo.save(user);
 		
 		// Send email verification
 		emailService.sendEmail(newUserDto);
