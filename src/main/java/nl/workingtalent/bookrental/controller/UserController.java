@@ -42,7 +42,7 @@ public class UserController {
 		}
 
 		String encodedPassword = passwordEncoder.encode(newUserDto.getPassword());
-		// TODO constructor		
+		
 		User user = new User(newUserDto.getFirstName(), 
 				newUserDto.getLastName(), 
 				newUserDto.getEmail(), 
