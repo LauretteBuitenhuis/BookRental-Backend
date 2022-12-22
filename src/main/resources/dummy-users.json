@@ -1,0 +1,93 @@
+[ 
+	{
+	  "firstName": "Tycho",
+	  "lastName": "Zaal",
+	  "email": "tycho.zaal@gmail.com",
+	  "password": "dhsakdsa",
+	  "admin": true
+	},
+	{
+	  "firstName": "Henk",
+	  "lastName": "Splitter",
+	  "email": "Henk.Splitter@hotmail.com",
+	  "password": "d4tsdf32",
+	  "admin": false
+	},
+	{
+	  "firstName": "Jeroen",
+	  "lastName": "Bakker",
+	  "email": "jbakker@gmail.com",
+	  "password": "463dtsfs",
+	  "admin": false
+	},
+	{
+	  "firstName": "Carlos",
+	  "lastName": "Perry",
+	  "email": "carlos.perry@example.com",
+	  "password": "1232dsf",
+	  "admin": false
+	},
+	{
+	  "firstName": "Jennie",
+	  "lastName": "Nichols",
+	  "email": "JennieNichols@hotmail.com",
+	  "password": "765fdg",
+	  "admin": false
+	},
+	{
+	  "firstName": "Jorrit",
+	  "lastName": "Achternaam",
+	  "email": "JorritAchternaam@workingtalent.nl",
+	  "password": "564dfs",
+	  "admin": true
+	},
+	{
+	  "firstName": "Wiggly",
+	  "lastName": "Zaal",
+	  "email": "Wigglydekat@gmail.com",
+	  "password": "45324sdf",
+	  "admin": false
+	},
+	{
+	  "firstName": "Sander",
+	  "lastName": "Berghuis",
+	  "email": "S.berghuis@outlook.com",
+	  "password": "324sdgfdx",
+	  "admin": false
+	},
+	{
+	  "firstName": "Emma",
+	  "lastName": "Raak",
+	  "email": "emmaraak00@gmail.com",
+	  "password": "awfsdt43",
+	  "admin": false
+	},
+	{
+	  "firstName": "Ouassima",
+	  "lastName": "Abdullah",
+	  "email": "ouassima98@gmail.com",
+	  "password": "gfdgvc65",
+	  "admin": false
+	},
+	{
+	  "firstName": "Sam",
+	  "lastName": "Bal",
+	  "email": "sambal2001@gmail.com",
+	  "password": "gdfxdfg3",
+	  "admin": false
+	},
+	{
+	  "firstName": "Ricardo",
+	  "lastName": "Huengani",
+	  "email": "RicardoHuengani@ziggo.nl",
+	  "password": "dsgjyg76",
+	  "admin": false
+	},
+	{
+	  "firstName": "TestAccount",
+	  "lastName": "TestAccount",
+	  "email": "stagiair@workingtalent.nl",
+	  "password": "gfd3w342",
+	  "admin": false
+	}
+]

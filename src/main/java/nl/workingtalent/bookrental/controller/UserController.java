@@ -1,6 +1,10 @@
 package nl.workingtalent.bookrental.controller;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,8 +19,12 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.type.CollectionType;
+
 import nl.workingtalent.bookrental.dto.LoginDto;
 import nl.workingtalent.bookrental.dto.NewUserDto;
+import nl.workingtalent.bookrental.model.Book;
 import nl.workingtalent.bookrental.model.User;
 import nl.workingtalent.bookrental.repository.IUserRepository;
 import nl.workingtalent.bookrental.services.EmailService;
@@ -62,8 +70,32 @@ public class UserController {
 		// Send email verification
 		emailService.sendEmail(newUserDto);
 		
-		return createdUser.getId(); 
+		return user.getId(); 
  	}
+	
+	@GetMapping("dummydata/users")
+	public List<User> insertDummyUsers() {
+		ObjectMapper mapper = new ObjectMapper();
+		
+		InputStream inputStream = Book.class.getResourceAsStream("/dummy-users.json");
+		CollectionType collectionType = mapper.getTypeFactory().constructCollectionType(List.class, NewUserDto.class);
+
+		List<NewUserDto> users = new ArrayList<NewUserDto>();
+		
+		try {
+			users = mapper.readValue(inputStream, collectionType);
+		} catch (IOException e) {
+			System.out.println("Error loading JSON file");
+		}
+		
+		for (NewUserDto user : users) {
+			
+			// Admin account needs to exist for proper rights
+			createUser("admin", user);
+		}
+		
+		return findAllUsers();
+    }
 	
 	
 	@PostMapping("user/login")
@@ -85,6 +117,62 @@ public class UserController {
 		repo.save(foundUser);
 					
 		return token;
+	}
+	
+	// TODO: Change return type to status
+	public boolean userIsLoggedIn(String token)
+	{
+		User loggedInUser = repo.findByToken(token);
+		
+		if (loggedInUser == null) {
+			// TODO: Redirect user to login page
+			return false; // User not logged in
+		}
+		
+		// User is logged in, add success code
+		return true;
+	}
+	
+	// TODO: Change return type to status
+	public boolean userIsAdmin(String token)
+	{
+		// Override permissions if it is an automated process 
+		if (token.equalsIgnoreCase("admin")) return true;
+		
+		// Check if user is logged in
+		if (!userIsLoggedIn(token)) { 
+			return false;
+		}
+		
+		User loggedInUser = repo.findByToken(token);
+		
+		if (!loggedInUser.isAdmin()) {
+			// User has invalid permissions
+			return false;
+		}
+		
+		// User is logged in, and has admin permissions
+		return true;
+	}
+	
+	// TODO: Change return type to status
+	public boolean userIdMatches(String token, long userId) {
+		
+		// Check if user is logged in
+		if (!userIsLoggedIn(token)) { 
+			return false;
+		}
+		
+		// Override permission check if an admin does it
+		if (userIsAdmin(token)) {
+			return true;
+		}
+		
+		User loggedInUser = repo.findByToken(token);
+		
+		// Check if intended user id is the same as the actual user id
+		// This is done to prevent changing 
+		return userId == loggedInUser.getId();
 	}
 	
 	

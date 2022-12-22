@@ -15,15 +15,19 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 @Entity
 public class Copy {
 
+	public Copy() {}
+	
+	public Copy(Book book) {
+		super();
+		this.book = book;
+	}
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long id;
 	
 	@Column(nullable = false)
-	private boolean goodCondition;
-	
-	@Column(nullable = false)
-	private boolean inService;
+	private boolean inService = true;
 
 	@ManyToOne(optional = false)
 	private Book book;
@@ -38,14 +42,6 @@ public class Copy {
 
 	public void setId(long id) {
 		this.id = id;
-	}
-
-	public boolean isGoodCondition() {
-		return goodCondition;
-	}
-
-	public void setGoodCondition(boolean goodCondition) {
-		this.goodCondition = goodCondition;
 	}
 
 	public boolean isInService() {
@@ -68,7 +64,11 @@ public class Copy {
 		return loans;
 	}
 
-	public void setLoans(List<Loan> loans) {
-		this.loans = loans;
+	public void addLoan(Loan loan) {
+		this.loans.add(loan);
+	}
+	
+	public void removeLoan(Loan loan) {
+		this.loans.remove(loan);
 	}
 }

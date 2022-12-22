@@ -10,12 +10,21 @@ import javax.persistence.ManyToOne;
 @Entity
 public class Reservation {
 
+	public Reservation(){}
+	
+	public Reservation(String status, Book book, User user) {
+		super();
+		this.status = status;
+		this.book = book;
+		this.user = user;
+	}
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long id;
 	
 	@Column(nullable = false)
-	private boolean approved;
+	private String status = "PENDING";
 	
 	@ManyToOne(optional = false)
 	private Book book;
@@ -31,12 +40,12 @@ public class Reservation {
 		this.id = id;
 	}
 
-	public boolean isApproved() {
-		return approved;
+	public String getStatus() {
+		return status;
 	}
 
-	public void setApproved(boolean approved) {
-		this.approved = approved;
+	public void setStatus(String status) {
+		this.status = status;
 	}
 
 	public Book getBook() {

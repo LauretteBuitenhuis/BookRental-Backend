@@ -129,15 +129,23 @@ public class User {
 		return reservations;
 	}
 
-	public void setReservations(List<Reservation> reservations) {
-		this.reservations = reservations;
+	public void addReservation(Reservation reservation) {
+		this.reservations.add(reservation);
+	}
+	
+	public void removeReservation(Reservation reservation) {
+		this.reservations.remove(reservation);
 	}
 
 	public List<Loan> getLoans() {
 		return loans;
 	}
 
-	public void setLoans(List<Loan> loans) {
-		this.loans = loans;
+	public void addLoan(Loan loan) {
+		this.loans.add(loan);
+	}
+	
+	public void removeLoan(Loan loan) {
+		this.loans.remove(loan);
 	}
 }
