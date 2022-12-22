@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class NewUserDto {
-	// TODO id (request & send dto) & constructor
 	private final String firstName;	
 	private final String lastName;	
 	private final String email;
@@ -12,7 +11,8 @@ public class NewUserDto {
 	private final boolean admin;
 	
 	@JsonCreator
-	public NewUserDto(@JsonProperty("firstName") String firstName, @JsonProperty("lastName") String lastName, @JsonProperty("email") String email, @JsonProperty("password") String password, @JsonProperty("admin") boolean admin) {
+	public NewUserDto(@JsonProperty("firstName") String firstName, @JsonProperty("lastName") String lastName, 
+	@JsonProperty("email") String email, @JsonProperty("password") String password, @JsonProperty("admin") boolean admin) {
 		this.firstName = firstName;
 		this.lastName = lastName;
 		this.email = email;
