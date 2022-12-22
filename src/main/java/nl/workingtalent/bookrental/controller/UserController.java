@@ -70,7 +70,7 @@ public class UserController {
 		// Send email verification
 		emailService.sendEmail(newUserDto);
 		
-		return createdUser.getId(); 
+		return user.getId(); 
  	}
 	
 	@GetMapping("dummydata/users")
@@ -120,7 +120,7 @@ public class UserController {
 	}
 	
 	// TODO: Change return type to status
-	public boolean CheckLoggedInUser(String token)
+	public boolean userIsLoggedIn(String token)
 	{
 		User loggedInUser = repo.findByToken(token);
 		
@@ -134,13 +134,13 @@ public class UserController {
 	}
 	
 	// TODO: Change return type to status
-	public boolean CheckUserPermissions(String token)
+	public boolean userIsAdmin(String token)
 	{
 		// Override permissions if it is an automated process 
 		if (token.equalsIgnoreCase("admin")) return true;
 		
 		// Check if user is logged in
-		if (!CheckLoggedInUser(token)) { 
+		if (!userIsLoggedIn(token)) { 
 			return false;
 		}
 		
@@ -156,15 +156,15 @@ public class UserController {
 	}
 	
 	// TODO: Change return type to status
-	public boolean CheckUserId(String token, long userId) {
+	public boolean userIdMatches(String token, long userId) {
 		
 		// Check if user is logged in
-		if (!CheckLoggedInUser(token)) { 
+		if (!userIsLoggedIn(token)) { 
 			return false;
 		}
 		
 		// Override permission check if an admin does it
-		if (CheckUserPermissions(token)) {
+		if (userIsAdmin(token)) {
 			return true;
 		}
 		

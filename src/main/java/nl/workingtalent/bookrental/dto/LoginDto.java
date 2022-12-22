@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class LoginDto {
+	
 	private final String email;
 	private final String password;
 
@@ -12,9 +13,6 @@ public class LoginDto {
 		this.email = email;
 		this.password = password;
 	}
-
-	private String email;
-	private String password;
 	
 	public String getEmail() {
 		return email;

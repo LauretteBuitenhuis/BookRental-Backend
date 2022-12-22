@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Random;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.CollectionType;
@@ -48,8 +50,9 @@ public class BookController {
 	@PostMapping("book/create")
 	public Book createBook(@RequestHeader(name = "Authorization") String token, @RequestBody Book book) {
 		
-		// TODO: Change to return status object instead
-		if (!userController.CheckUserPermissions(token)) return null;
+		if (!userController.userIsAdmin(token)) {
+			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid permissions for creating book");
+		}
 		
 		repo.save(book);
 		return book;
@@ -58,8 +61,9 @@ public class BookController {
 	@DeleteMapping("book/{id}/delete")
 	public void delete(@RequestHeader(name = "Authorization") String token, @PathVariable long id) {
 		
-		// TODO: Change to return status object instead
-		if (!userController.CheckUserPermissions(token)) return;
+		if (!userController.userIsAdmin(token)) {
+			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid permissions for deleting book");
+		}
 		
 		repo.deleteById(id);
 	}
@@ -96,8 +100,9 @@ public class BookController {
 	@PutMapping("book/{id}/edit")
 	public void editBook(@RequestHeader(name = "Authorization") String token, @RequestBody Book book, @PathVariable long id) {
 		
-		// TODO: Change to return status object instead
-		if (!userController.CheckUserPermissions(token)) return;
+		if (!userController.userIsAdmin(token)) {
+			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid permissions for editing book");
+		}
 		
 		Book prevBook = repo.findById(id).get();
 		
