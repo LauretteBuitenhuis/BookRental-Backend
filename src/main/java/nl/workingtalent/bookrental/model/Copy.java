@@ -17,9 +17,8 @@ public class Copy {
 
 	public Copy() {}
 	
-	public Copy(boolean inService, Book book) {
+	public Copy(Book book) {
 		super();
-		this.inService = inService;
 		this.book = book;
 	}
 
@@ -28,7 +27,7 @@ public class Copy {
 	private long id;
 	
 	@Column(nullable = false)
-	private boolean inService;
+	private boolean inService = true;
 
 	@ManyToOne(optional = false)
 	private Book book;

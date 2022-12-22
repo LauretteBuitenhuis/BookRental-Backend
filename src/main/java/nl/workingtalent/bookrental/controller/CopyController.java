@@ -32,7 +32,7 @@ public class CopyController {
 		if (!userController.CheckUserPermissions(token)) return null;
 		
 		Book book = bookRepo.findById(bookId).get();
-		Copy copy = new Copy(true, book);
+		Copy copy = new Copy(book);
 		
 		book.addCopy(copy);
 		

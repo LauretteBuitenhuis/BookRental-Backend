@@ -1,11 +1,16 @@
 package nl.workingtalent.bookrental.dto;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import nl.workingtalent.bookrental.model.Book;
 import nl.workingtalent.bookrental.model.User;
 
 public class ReservationSendDto {
 
-	public ReservationSendDto(String status, Book book, User user) {
+	@JsonCreator
+	public ReservationSendDto(@JsonProperty("status") String status, 
+			@JsonProperty("book") Book book, @JsonProperty("user") User user) {
 		super();
 		this.status = status;
 		this.book = book;
