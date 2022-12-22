@@ -57,7 +57,7 @@ public class UserController {
 				newUserDto.getEmail(), 
 				encodedPassword, 
 				newUserDto.isAdmin(),false);
-		repo.save(user);
+		User createdUser = repo.save(user);
 		
 		// Send email verification
 		emailService.sendEmail(newUserDto);

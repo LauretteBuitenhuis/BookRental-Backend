@@ -12,9 +12,6 @@ public class LoginDto {
 		this.email = email;
 		this.password = password;
 	}
-
-	private String email;
-	private String password;
 	
 	public String getEmail() {
 		return email;
