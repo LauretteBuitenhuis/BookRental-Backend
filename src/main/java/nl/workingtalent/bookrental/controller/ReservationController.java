@@ -1,6 +1,11 @@
 package nl.workingtalent.bookrental.controller;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -93,5 +98,28 @@ public class ReservationController {
 		}
 
 		throw new ResponseStatusException(HttpStatus.EXPECTATION_FAILED, "Unexpected failure when creating loan");
+	}
+	
+	@GetMapping("reservation/pending")
+	public List<Reservation> getPendingReservations(@RequestHeader(name = "Authorization") String token){
+		
+		if (!userController.userIsLoggedIn(token)) {
+			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User is not logged in");
+		}
+		
+		List<Reservation> allReservations = new ArrayList<Reservation>(); 
+		List<Reservation> pendingReservations = new ArrayList<Reservation>(); 
+		
+		allReservations = reservationRepo.findAll();
+
+		for (Reservation reservation : allReservations) {
+			if (reservation.getStatus().equalsIgnoreCase("PENDING")) {
+				pendingReservations.add(reservation);
+			}
+		}
+		
+		System.out.print("Success");
+		
+		return pendingReservations;
 	}
 }
