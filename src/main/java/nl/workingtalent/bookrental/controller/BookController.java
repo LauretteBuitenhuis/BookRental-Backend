@@ -1,11 +1,8 @@
 package nl.workingtalent.bookrental.controller;
 
-import java.io.Console;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 
@@ -19,7 +16,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -27,19 +23,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.CollectionType;
 
 import nl.workingtalent.bookrental.model.Book;
-import nl.workingtalent.bookrental.model.User;
 import nl.workingtalent.bookrental.repository.IBookRepository;
-import nl.workingtalent.bookrental.repository.IUserRepository;
 
 @RestController
 @CrossOrigin(maxAge = 3600)
 public class BookController {
 	
 	@Autowired
-	private IBookRepository repo;
-	
-	@Autowired
-	private IUserRepository userRepo;
+	private IBookRepository bookRepo;
 	
 	@Autowired
 	private UserController userController;
@@ -54,7 +45,7 @@ public class BookController {
 			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid permissions for creating book");
 		}
 		
-		repo.save(book);
+		bookRepo.save(book);
 		return book;
 	}
 	
@@ -65,7 +56,7 @@ public class BookController {
 			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid permissions for deleting book");
 		}
 		
-		repo.deleteById(id);
+		bookRepo.deleteById(id);
 	}
 	
 	@GetMapping("dummydata/books")
@@ -104,22 +95,22 @@ public class BookController {
 			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid permissions for editing book");
 		}
 		
-		Book prevBook = repo.findById(id).get();
+		Book prevBook = bookRepo.findById(id).get();
 		
 		prevBook.setAuthor(book.getAuthor());
 		prevBook.setIsbn(book.getIsbn());
 		prevBook.setTitle(book.getTitle());
 		
-		repo.save(prevBook);
+		bookRepo.save(prevBook);
 	}
 	
 	@GetMapping("book/all")
 	public List<Book> findAllBooks(){
-		return repo.findAll();
+		return bookRepo.findAll();
 	}
 	
 	@GetMapping("book/{id}")
 	public Book findBook(@PathVariable long id){
-		return repo.findById(id).get();
+		return bookRepo.findById(id).get();
 	}
 }

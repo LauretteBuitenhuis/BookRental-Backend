@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,7 +35,7 @@ public class UserController {
 	private BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 	
 	@Autowired
-	private IUserRepository repo;
+	private IUserRepository userRepo;
 	
 	@Autowired
 	private EmailService emailService;
@@ -45,7 +44,7 @@ public class UserController {
 	@ResponseStatus(code=HttpStatus.CREATED)
 	public long createUser(@RequestHeader(name = "Authorization") String token, @RequestBody NewUserDto newUserDto) {
 		
-		User loggedInUser = repo.findByToken(token);
+		User loggedInUser = userRepo.findByToken(token);
     
 		// Check if user has Admin rights
 		if (loggedInUser == null || !loggedInUser.isAdmin()) 
@@ -53,7 +52,7 @@ public class UserController {
 
 		
 		// Check if user already exists in database by email
-		User existingUser = repo.findByEmail(newUserDto.getEmail());
+		User existingUser = userRepo.findByEmail(newUserDto.getEmail());
 		if (existingUser != null) {
 			throw new ResponseStatusException(HttpStatus.CONFLICT, "User already exists");
 		}
@@ -65,12 +64,12 @@ public class UserController {
 				newUserDto.getEmail(), 
 				encodedPassword, 
 				newUserDto.isAdmin(),false);
-		User createdUser = repo.save(user);
+		User createdUser = userRepo.save(user);
 		
 		// Send email verification
 		emailService.sendEmail(newUserDto);
 		
-		return user.getId(); 
+		return createdUser.getId(); 
  	}
 	
 	@GetMapping("dummydata/users")
@@ -100,7 +99,7 @@ public class UserController {
 	
 	@PostMapping("user/login")
 	public String userLogin(@RequestBody LoginDto loginDto) {		
-		User foundUser = repo.findByEmail(loginDto.getEmail());
+		User foundUser = userRepo.findByEmail(loginDto.getEmail());
 		
 		if (foundUser == null) {
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
@@ -114,7 +113,7 @@ public class UserController {
 		
 		String token = RandomStringUtils.random(150, true, true);
 		foundUser.setToken(token);
-		repo.save(foundUser);
+		userRepo.save(foundUser);
 					
 		return token;
 	}
@@ -122,7 +121,7 @@ public class UserController {
 	// TODO: Change return type to status
 	public boolean userIsLoggedIn(String token)
 	{
-		User loggedInUser = repo.findByToken(token);
+		User loggedInUser = userRepo.findByToken(token);
 		
 		if (loggedInUser == null) {
 			// TODO: Redirect user to login page
@@ -144,7 +143,7 @@ public class UserController {
 			return false;
 		}
 		
-		User loggedInUser = repo.findByToken(token);
+		User loggedInUser = userRepo.findByToken(token);
 		
 		if (!loggedInUser.isAdmin()) {
 			// User has invalid permissions
@@ -168,7 +167,7 @@ public class UserController {
 			return true;
 		}
 		
-		User loggedInUser = repo.findByToken(token);
+		User loggedInUser = userRepo.findByToken(token);
 		
 		// Check if intended user id is the same as the actual user id
 		// This is done to prevent changing 
@@ -178,6 +177,6 @@ public class UserController {
 	
 	@GetMapping("user/all")
 	public List<User> findAllUsers(){
-		return repo.findAll();
+		return userRepo.findAll();
 	}
 }
