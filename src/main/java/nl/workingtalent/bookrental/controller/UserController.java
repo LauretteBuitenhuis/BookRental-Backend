@@ -118,22 +118,26 @@ public class UserController {
 		userRepo.save(foundUser);
 		Map<String, String> map = new HashMap<String, String>();	
 		map.put("token", token);
+		
+		if (userIsAdmin(token)) map.put("isAdmin", "admin");
+		else map.put("isAdmin", "");
+		
 		return map;
 	}
 	
-//	// TODO: Change return type to status
-//	public boolean userIsLoggedIn(String token)
-//	{
-//		User loggedInUser = userRepo.findByToken(token);
-//		
-//		if (loggedInUser == null) {
-//			// TODO: Redirect user to login page
-//			return false; // User not logged in
-//		}
-//		
-//		// User is logged in, add success code
-//		return true;
-//	}
+	// TODO: Change return type to status
+	public boolean userIsLoggedIn(String token)
+	{
+		User loggedInUser = userRepo.findByToken(token);
+		
+		if (loggedInUser == null) {
+			// TODO: Redirect user to login page
+			return false; // User not logged in
+		}
+		
+		// User is logged in, add success code
+		return true;
+	}
 	
 	// TODO: Change return type to status
 	public boolean userIsAdmin(String token)
