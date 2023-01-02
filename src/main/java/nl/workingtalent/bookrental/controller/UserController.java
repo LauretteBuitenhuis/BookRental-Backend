@@ -3,7 +3,9 @@ package nl.workingtalent.bookrental.controller;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -98,7 +100,7 @@ public class UserController {
 	
 	
 	@PostMapping("user/login")
-	public String userLogin(@RequestBody LoginDto loginDto) {		
+	public Map<String, String> userLogin(@RequestBody LoginDto loginDto) {		
 		User foundUser = userRepo.findByEmail(loginDto.getEmail());
 		
 		if (foundUser == null) {
@@ -114,8 +116,16 @@ public class UserController {
 		String token = RandomStringUtils.random(150, true, true);
 		foundUser.setToken(token);
 		userRepo.save(foundUser);
-					
-		return token;
+		Map<String, String> map = new HashMap<String, String>();	
+		
+		// Return token after login
+		map.put("token", token);
+		
+		// Return if user is admin or not
+		if (userIsAdmin(token)) map.put("isAdmin", "admin");
+		else map.put("isAdmin", "");
+		
+		return map;
 	}
 	
 	// TODO: Change return type to status
