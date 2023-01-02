@@ -18,7 +18,7 @@ public class EmailService {
 	
 	public void sendEmail(NewUserDto newUserDto) {
 		
-		String activationUrl = "http://localhost:8082/user/activate";
+		String activationUrl = "http://localhost:3000";
 		String from = "no-reply@workingtalent.nl";
 		String to = newUserDto.getEmail();
 		String firstName = newUserDto.getFirstName();
