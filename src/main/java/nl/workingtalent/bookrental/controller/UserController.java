@@ -117,8 +117,11 @@ public class UserController {
 		foundUser.setToken(token);
 		userRepo.save(foundUser);
 		Map<String, String> map = new HashMap<String, String>();	
+		
+		// Return token after login
 		map.put("token", token);
 		
+		// Return if user is admin or not
 		if (userIsAdmin(token)) map.put("isAdmin", "admin");
 		else map.put("isAdmin", "");
 		
