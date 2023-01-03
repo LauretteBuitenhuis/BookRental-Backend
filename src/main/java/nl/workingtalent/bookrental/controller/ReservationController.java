@@ -1,5 +1,6 @@
 package nl.workingtalent.bookrental.controller;
 
+import java.io.Console;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -10,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -66,9 +68,9 @@ public class ReservationController {
 	}
 
 	// TODO: Change to status return, does not need to return anything at all
-	@GetMapping("reservation/approve/{reservationId}/{copyId}/{toApprove}")
+	@PostMapping("reservation/approve/{reservationId}/{copyId}")
 	public Loan updateReservationApproval(@RequestHeader(name = "Authorization") String token,
-			@PathVariable long reservationId, @PathVariable long copyId, @PathVariable boolean toApprove) {
+			@PathVariable long reservationId, @PathVariable long copyId) {
 
 		if (!userController.userIsAdmin(token)) {
 			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid permissions for approving reservation");
@@ -76,32 +78,43 @@ public class ReservationController {
 
 		Reservation reservation = reservationRepo.findById(reservationId).get();
 
-		reservation.setStatus(toApprove ? "APPROVED" : "DENIED");
+		reservation.setStatus("APPROVED");
 
 		reservationRepo.save(reservation);
 
-		// Only look for copy if the reservation is accepted
-		if (toApprove) {
+		Copy copy = copyRepo.findById(copyId).get();
 
-			Copy copy = copyRepo.findById(copyId).get();
-
-			// Check if copy matches book
-			if (reservation.getBook() != copy.getBook()) {
-				// Book does not match copy
-				throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "Copy belongs to a different book");
-			}
-
-			// Check if copy is in service
-			if (!copy.isInService())
-				throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Copy is no longer in service");
-
-			// Create loan
-			// TODO: remove return and storing of loan, is unnecessary
-			Loan loan = loanController.createLoan(token, copyId, reservation.getUser().getId());
-			return loan;
+		// Check if copy matches book
+		if (reservation.getBook() != copy.getBook()) {
+			// Book does not match copy
+			throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "Copy belongs to a different book");
 		}
 
-		throw new ResponseStatusException(HttpStatus.EXPECTATION_FAILED, "Unexpected failure when creating loan");
+		// Check if copy is in service
+		if (!copy.isInService())
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Copy is no longer in service");
+
+		// Create loan
+		// TODO: remove return and storing of loan, is unnecessary
+		Loan loan = loanController.createLoan(token, copyId, reservation.getUser().getId());
+		return loan;
+	}
+
+	@PutMapping("reservation/deny/{reservationId}")
+	public Reservation updateReservationApproval(@RequestHeader(name = "Authorization") String token,
+			@PathVariable long reservationId) {
+
+		if (!userController.userIsAdmin(token)) {
+			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid permissions for approving reservation");
+		}
+
+		Reservation reservation = reservationRepo.findById(reservationId).get();
+
+		reservation.setStatus("DENIED");
+
+		reservationRepo.save(reservation);
+		
+		return reservation;
 	}
 
 	@GetMapping("reservation/pending")
