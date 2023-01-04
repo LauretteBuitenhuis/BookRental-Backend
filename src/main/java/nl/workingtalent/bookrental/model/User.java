@@ -13,6 +13,20 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 public class User {
+	
+		public User() {
+		// TODO Spring need this Default constructor. Add some status code?
+	}
+
+	public User(String firstName, String lastName, String email, String password, boolean admin,
+			boolean enabled) {
+		this.firstName = firstName;
+		this.lastName = lastName;
+		this.email = email;
+		this.password = password;
+		this.admin = admin;
+		this.enabled = enabled;
+	}
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -32,14 +46,17 @@ public class User {
 	
 	@Column(nullable = false)
 	private boolean admin;
-	
+
 	@Column(nullable = false)
-	private boolean enabled;
+	private boolean enabled; // activated
+	
+	@Column(nullable = true, length = 200, unique = true)
+	private String token;
 	
 	@JsonIgnore
 	@OneToMany(mappedBy = "user")
 	private List<Reservation> reservations;
-	
+
 	@JsonIgnore
 	@OneToMany(mappedBy = "user")
 	private List<Loan> loans;
@@ -99,20 +116,36 @@ public class User {
 	public void setEnabled(boolean enabled) {
 		this.enabled = enabled;
 	}
+	
+	public String getToken() {
+		return token;
+	}
+	
+	public void setToken(String token) {
+		this.token = token;
+	}
 
 	public List<Reservation> getReservations() {
 		return reservations;
 	}
 
-	public void setReservations(List<Reservation> reservations) {
-		this.reservations = reservations;
+	public void addReservation(Reservation reservation) {
+		this.reservations.add(reservation);
+	}
+	
+	public void removeReservation(Reservation reservation) {
+		this.reservations.remove(reservation);
 	}
 
 	public List<Loan> getLoans() {
 		return loans;
 	}
 
-	public void setLoans(List<Loan> loans) {
-		this.loans = loans;
+	public void addLoan(Loan loan) {
+		this.loans.add(loan);
+	}
+	
+	public void removeLoan(Loan loan) {
+		this.loans.remove(loan);
 	}
 }
