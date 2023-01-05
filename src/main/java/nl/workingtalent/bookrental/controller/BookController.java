@@ -26,8 +26,10 @@ import com.fasterxml.jackson.databind.type.CollectionType;
 import nl.workingtalent.bookrental.model.Book;
 import nl.workingtalent.bookrental.model.Copy;
 import nl.workingtalent.bookrental.model.Loan;
+import nl.workingtalent.bookrental.model.Reservation;
 import nl.workingtalent.bookrental.repository.IBookRepository;
 import nl.workingtalent.bookrental.repository.ICopyRepository;
+import nl.workingtalent.bookrental.repository.IUserRepository;
 
 @RestController
 @CrossOrigin(maxAge = 3600)
@@ -38,6 +40,9 @@ public class BookController {
 
 	@Autowired
 	private ICopyRepository copyRepo;
+
+	@Autowired
+	private IUserRepository userRepo;
 
 	@Autowired
 	private UserController userController;
@@ -148,6 +153,38 @@ public class BookController {
 	@GetMapping("book/all")
 	public List<Book> findAllBooks() {
 		return bookRepo.findAll();
+	}
+
+	@GetMapping("book/all/user")
+	public List<Book> findAllUnreservedByUserBooks(@RequestHeader(name = "Authorization") String token) {
+
+		if (!userController.userIsLoggedIn(token)) {
+			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User is not logged in");
+		}
+		
+		long userId = userRepo.findByToken(token).getId();
+
+		List<Book> books = bookRepo.findAll();
+		List<Book> unreservedBooks = new ArrayList<Book>();
+
+		outerloop:
+		for (Book book : books) {
+
+			for (Reservation reservation : book.getReservations()) {
+
+				long reservationUserId = reservation.getUser().getId();
+				
+				// Book has already been reserved by user if:
+				if (reservationUserId == userId) {
+					if (reservation.getStatus().equals("PENDING"))
+						continue outerloop;
+				}
+			}
+
+			unreservedBooks.add(book);
+		}
+
+		return unreservedBooks;
 	}
 
 	@GetMapping("book/{id}")
