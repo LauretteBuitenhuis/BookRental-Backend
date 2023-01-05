@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -200,5 +201,22 @@ public class UserController {
 		}
 
 		userRepo.deleteById(id);
+	}
+	
+	@PutMapping("user/{id}/edit")
+	public void editUser(@RequestHeader(name = "Authorization") String token, @RequestBody User user,
+			@PathVariable long id) {
+
+		if (!userIsAdmin(token)) {
+			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid permissions for editing book");
+		}
+
+		User prevUser = userRepo.findById(id).get();
+
+		prevUser.setFirstName(user.getFirstName());
+		prevUser.setLastName(user.getLastName());
+		prevUser.setEmail(user.getEmail());
+
+		userRepo.save(prevUser);
 	}
 }
