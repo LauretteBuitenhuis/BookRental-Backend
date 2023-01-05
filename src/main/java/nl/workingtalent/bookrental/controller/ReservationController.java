@@ -45,14 +45,15 @@ public class ReservationController {
 	@Autowired
 	private UserController userController;
 
-	@GetMapping("reservation/create/{bookId}/{userId}")
+	@PostMapping("reservation/create/{bookId}")
 	@ResponseStatus(code = HttpStatus.CREATED)
-	public Reservation createReservation(@RequestHeader(name = "Authorization") String token, @PathVariable long bookId,
-			@PathVariable long userId) {
+	public Reservation createReservation(@RequestHeader(name = "Authorization") String token, @PathVariable long bookId) {
 
+		long userId = userRepo.findByToken(token).getId();
+		
 		// Check if user is trying to make a reservation for themselves.
-		if (!userController.userIdMatches(token, userId)) {
-			throw new ResponseStatusException(HttpStatus.CONFLICT, "Requested action affects other user(s)");
+		if (!userController.userIsLoggedIn(token)) {
+			throw new ResponseStatusException(HttpStatus.CONFLICT, "User is not logged in");
 		}
 
 		Book book = bookRepo.findById(bookId).get();
