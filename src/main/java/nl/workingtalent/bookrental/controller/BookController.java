@@ -161,19 +161,18 @@ public class BookController {
 		if (!userController.userIsLoggedIn(token)) {
 			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User is not logged in");
 		}
-		
+
 		long userId = userRepo.findByToken(token).getId();
 
 		List<Book> books = bookRepo.findAll();
 		List<Book> unreservedBooks = new ArrayList<Book>();
 
-		outerloop:
-		for (Book book : books) {
+		outerloop: for (Book book : books) {
 
 			for (Reservation reservation : book.getReservations()) {
 
 				long reservationUserId = reservation.getUser().getId();
-				
+
 				// Book has already been reserved by user if:
 				if (reservationUserId == userId) {
 					if (reservation.getStatus().equals("PENDING"))
@@ -190,5 +189,19 @@ public class BookController {
 	@GetMapping("book/{id}")
 	public Book findBook(@PathVariable long id) {
 		return bookRepo.findById(id).get();
+	}
+	
+	@GetMapping("book/copy/{id}")
+	public List<Copy> getAllCopiesById(@PathVariable long id) {
+		
+		List<Copy> copies = copyRepo.findAll();
+		List<Copy> copiesOfBook = new ArrayList<Copy>();
+		
+		for (Copy copy : copies) {
+			if (copy.getBook().getId() == id)
+				copiesOfBook.add(copy);
+		}
+		
+		return copiesOfBook;
 	}
 }
