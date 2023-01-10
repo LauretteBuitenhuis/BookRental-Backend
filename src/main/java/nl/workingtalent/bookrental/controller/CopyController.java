@@ -60,7 +60,7 @@ public class CopyController {
 		}
 
 		List<Copy> copies = copyRepo.findAll();
-		List<Copy> unreservedCopies = new ArrayList<Copy>();
+		List<Copy> loanedCopiesByUser = new ArrayList<Copy>();
 
 		for (Copy copy : copies) {
 
@@ -69,12 +69,12 @@ public class CopyController {
 				// Copy is being rented and does NOT have an end date
 				if (loan.getStartDate() != null && !loan.getStartDate().equalsIgnoreCase("")) {
 					if (loan.getEndDate() == null || loan.getEndDate().equalsIgnoreCase("")) {
-						unreservedCopies.add(copy);
+						loanedCopiesByUser.add(copy);
 					}
 				}
 			}
 		}
-		return unreservedCopies;
+		return loanedCopiesByUser;
 	}
 
 	@GetMapping("book/all/loaned/user")
@@ -87,7 +87,7 @@ public class CopyController {
 		long userId = userRepo.findByToken(token).getId();
 
 		List<Copy> copies = copyRepo.findAll();
-		List<Copy> unreservedCopies = new ArrayList<Copy>();
+		List<Copy> loanedCopies = new ArrayList<Copy>();
 
 		for (Copy copy : copies) {
 
@@ -100,11 +100,11 @@ public class CopyController {
 				// Copy is being rented and does NOT have an end date
 				if (loan.getStartDate() != null && !loan.getStartDate().equalsIgnoreCase("")) {
 					if (loan.getEndDate() == null || loan.getEndDate().equalsIgnoreCase("")) {
-						unreservedCopies.add(copy);
+						loanedCopies.add(copy);
 					}
 				}
 			}
 		}
-		return unreservedCopies;
+		return loanedCopies;
 	}
 }

@@ -156,7 +156,7 @@ public class BookController {
 	}
 
 	@GetMapping("book/all/user")
-	public List<Book> findAllUnreservedByUserBooks(@RequestHeader(name = "Authorization") String token) {
+	public List<Book> findAllNonUserReservedBooks(@RequestHeader(name = "Authorization") String token) {
 
 		if (!userController.userIsLoggedIn(token)) {
 			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User is not logged in");
@@ -165,8 +165,9 @@ public class BookController {
 		long userId = userRepo.findByToken(token).getId();
 
 		List<Book> books = bookRepo.findAll();
-		List<Book> unreservedBooks = new ArrayList<Book>();
+		List<Book> booksNotReservedByUser = new ArrayList<Book>();
 
+		// Go over all 
 		outerloop: for (Book book : books) {
 
 			for (Reservation reservation : book.getReservations()) {
@@ -180,10 +181,10 @@ public class BookController {
 				}
 			}
 
-			unreservedBooks.add(book);
+			booksNotReservedByUser.add(book);
 		}
 
-		return unreservedBooks;
+		return booksNotReservedByUser;
 	}
 
 	@GetMapping("book/{id}")
