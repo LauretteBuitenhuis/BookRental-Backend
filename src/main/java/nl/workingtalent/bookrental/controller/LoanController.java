@@ -3,13 +3,16 @@ package nl.workingtalent.bookrental.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.time.format.DateTimeFormatter;  
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 import java.time.LocalDateTime;    
 
 import nl.workingtalent.bookrental.model.Copy;
@@ -65,6 +68,35 @@ public class LoanController {
 		loanRepo.save(loan);
 		
 		return loan;
+	}
+	
+	@GetMapping("loan/history")
+	public List<Loan> getUserLoanHistory(@RequestHeader(name = "Authorization") String token) {	
+		
+		if (!userController.userIsLoggedIn(token)) {
+			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User is not logged in");
+		}
+		
+		long userId = userRepo.findByToken(token).getId();
+		
+		List<Loan> allLoans = loanRepo.findAll();
+		List<Loan> userPastLoans = new ArrayList<Loan>();
+		
+		for (Loan loan : allLoans) {
+
+			// See if id matches with user
+			if (loan.getUser().getId() != userId)
+				continue;
+
+			// Copy is being rented and does NOT have an end date
+			if (loan.getStartDate() != null && !loan.getStartDate().equalsIgnoreCase("")) {
+				if (loan.getEndDate() != null && !loan.getEndDate().equalsIgnoreCase("")) {
+					userPastLoans.add(loan);
+				}
+			}
+		}
+		
+		return userPastLoans;
 	}
 	
 	// TODO: Remove loan upon handing in book
