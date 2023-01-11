@@ -67,7 +67,13 @@ public class UserController {
 		
 		// Check password
 		if (validatePassword.passwordIsValid(newUserDto) == false) {
-			throw new ResponseStatusException(HttpStatus.CONFLICT, "Password does not meet the requirements");
+			throw new ResponseStatusException(HttpStatus.CONFLICT, "Password does not meet the requirements.\n"
+					+ "Your password must have:\n"
+					+ "- Minimum of eight characters\n"
+					+ "- Uppercase letters\n"
+					+ "- Lowercase letters\n"
+					+ "- Numbers\n"
+					+ "- Special characters");
 		};
 		
 		String encodedPassword = passwordEncoder.encode(newUserDto.getPassword());
