@@ -11,9 +11,8 @@ import nl.workingtalent.bookrental.dto.NewUserDto;
 public class ValidatePassword {
 	
 	private String ENTERED_PASSWORD;
-	// TODO - add special character
-	// TODO - add minimum length
-	private String REGEX = "^(?=.*\\p{Upper})(?=.*[a-zA-Z])(?=.*[0-9]).*[a-zA-Z0-9]*$";
+	private String REGEX = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$";
+
 	
 	public boolean passwordIsValid(NewUserDto newUserDto) {
 		ENTERED_PASSWORD = newUserDto.getPassword();
