@@ -32,6 +32,7 @@ import nl.workingtalent.bookrental.model.Book;
 import nl.workingtalent.bookrental.model.User;
 import nl.workingtalent.bookrental.repository.IUserRepository;
 import nl.workingtalent.bookrental.services.EmailService;
+import nl.workingtalent.bookrental.services.ValidatePassword;
 
 @RestController
 @CrossOrigin(maxAge = 3600)
@@ -44,6 +45,8 @@ public class UserController {
 	
 	@Autowired
 	private EmailService emailService;
+	
+	@Autowired ValidatePassword validatePassword;
 	
 	@PostMapping("user/create")
 	@ResponseStatus(code=HttpStatus.CREATED)
@@ -62,6 +65,11 @@ public class UserController {
 			throw new ResponseStatusException(HttpStatus.CONFLICT, "User already exists");
 		}
 		
+		// Check password
+		if (validatePassword.passwordIsValid(newUserDto) == false) {
+			throw new ResponseStatusException(HttpStatus.CONFLICT, "Password does not meet the requirements");
+		};
+		
 		String encodedPassword = passwordEncoder.encode(newUserDto.getPassword());
 		
 		User user = new User(newUserDto.getFirstName(), 
@@ -70,6 +78,7 @@ public class UserController {
 				encodedPassword, 
 				newUserDto.isAdmin(),false);
 		User createdUser = userRepo.save(user);
+		
 		
 		// Send email verification
 		emailService.sendEmail(newUserDto);
