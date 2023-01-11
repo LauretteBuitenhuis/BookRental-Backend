@@ -3,7 +3,6 @@ package nl.workingtalent.bookrental.controller;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 
@@ -26,8 +25,10 @@ import com.fasterxml.jackson.databind.type.CollectionType;
 import nl.workingtalent.bookrental.model.Book;
 import nl.workingtalent.bookrental.model.Copy;
 import nl.workingtalent.bookrental.model.Loan;
+import nl.workingtalent.bookrental.model.Reservation;
 import nl.workingtalent.bookrental.repository.IBookRepository;
 import nl.workingtalent.bookrental.repository.ICopyRepository;
+import nl.workingtalent.bookrental.repository.IUserRepository;
 
 @RestController
 @CrossOrigin(maxAge = 3600)
@@ -38,6 +39,9 @@ public class BookController {
 
 	@Autowired
 	private ICopyRepository copyRepo;
+
+	@Autowired
+	private IUserRepository userRepo;
 
 	@Autowired
 	private UserController userController;
@@ -112,46 +116,69 @@ public class BookController {
 		bookRepo.save(prevBook);
 	}
 
-	@GetMapping("book/getrandomcopy/{bookId}")
-	public Copy getRandomCopy(@RequestHeader(name = "Authorization") String token, @PathVariable long bookId) {
-
-		if (!userController.userIsLoggedIn(token)) {
-			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User is not logged in");
-		}
-
-		List<Copy> copies = copyRepo.findAll();
-
-		for (Copy copy : copies) {
-
-			// Check if book has same ID as copy
-			if (copy.getBook().getId() != bookId)
-				continue;
-
-			// Return copy if there are no (current) loans
-			if (copy.getLoans().size() == 0)
-				return copy;
-
-			// If there are previous/current loans, check if they have been ended yet
-			for (Loan loan : copy.getLoans()) {
-
-				if (loan.getEndDate() != "" && loan.getEndDate() != null) {
-					return copy;
-				}
-			}
-
-		}
-
-		// No copies are available for this book
-		throw new ResponseStatusException(HttpStatus.EXPECTATION_FAILED, "No copies are available for rental");
-	}
-
 	@GetMapping("book/all")
 	public List<Book> findAllBooks() {
 		return bookRepo.findAll();
 	}
 
+	@GetMapping("book/all/user")
+	public List<Book> findAllNonUserReservedBooks(@RequestHeader(name = "Authorization") String token) {
+
+		if (!userController.userIsLoggedIn(token)) {
+			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User is not logged in");
+		}
+
+		long userId = userRepo.findByToken(token).getId();
+
+		List<Book> books = bookRepo.findAll();
+		List<Book> booksNotReservedByUser = new ArrayList<Book>();
+
+		// Go over all 
+		outerloop: for (Book book : books) {
+
+			for (Reservation reservation : book.getReservations()) {
+
+				long reservationUserId = reservation.getUser().getId();
+
+				// Book has already been reserved by user if:
+				if (reservationUserId == userId) {
+					if (reservation.getStatus().equals("PENDING"))
+						continue outerloop;
+				}
+			}
+
+			booksNotReservedByUser.add(book);
+		}
+
+		return booksNotReservedByUser;
+	}
+
 	@GetMapping("book/{id}")
 	public Book findBook(@PathVariable long id) {
 		return bookRepo.findById(id).get();
+	}
+	
+	@GetMapping("book/copy/{id}")
+	public List<Copy> getAvailableCopiesById(@PathVariable long id) {
+		
+		List<Copy> copies = copyRepo.findAll();
+		List<Copy> copiesOfBook = new ArrayList<Copy>();
+		
+		outerloop: 
+		for (Copy copy : copies) {
+			
+			if (copy.getBook().getId() == id) {
+				
+				for (Loan loan : copy.getLoans()) {
+					
+					if (loan.getEndDate() == null || loan.getEndDate().equalsIgnoreCase(""))
+						continue outerloop;
+				}
+				
+				copiesOfBook.add(copy);
+			}
+		}
+		
+		return copiesOfBook;
 	}
 }

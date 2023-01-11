@@ -1,12 +1,9 @@
 package nl.workingtalent.bookrental.controller;
 
-import java.io.Console;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -47,10 +44,11 @@ public class ReservationController {
 
 	@PostMapping("reservation/create/{bookId}")
 	@ResponseStatus(code = HttpStatus.CREATED)
-	public Reservation createReservation(@RequestHeader(name = "Authorization") String token, @PathVariable long bookId) {
+	public Reservation createReservation(@RequestHeader(name = "Authorization") String token,
+			@PathVariable long bookId) {
 
 		long userId = userRepo.findByToken(token).getId();
-		
+
 		// Check if user is trying to make a reservation for themselves.
 		if (!userController.userIsLoggedIn(token)) {
 			throw new ResponseStatusException(HttpStatus.CONFLICT, "User is not logged in");
@@ -114,7 +112,7 @@ public class ReservationController {
 		reservation.setStatus("DENIED");
 
 		reservationRepo.save(reservation);
-		
+
 		return reservation;
 	}
 
@@ -136,8 +134,31 @@ public class ReservationController {
 			}
 		}
 
-		System.out.print("Success");
-
 		return pendingReservations;
+	}
+
+	@GetMapping("reservation/pending/user")
+	public List<Reservation> getPendingUserReservations(@RequestHeader(name = "Authorization") String token) {
+
+		if (!userController.userIsLoggedIn(token)) {
+			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User is not logged in");
+		}
+		
+		long userId = userRepo.findByToken(token).getId();
+
+		List<Reservation> pendingReservations = getPendingReservations(token);
+		List<Reservation> userReservations = new ArrayList<Reservation>();
+
+		pendingReservations = reservationRepo.findAll();
+
+		for (Reservation reservation : pendingReservations) {
+
+			// Book has already been reserved by user if:
+			if (reservation.getUser().getId() == userId) {
+				if (reservation.getStatus().equalsIgnoreCase("PENDING"))
+					userReservations.add(reservation);
+			}
+		}
+		return userReservations;
 	}
 }
