@@ -10,6 +10,9 @@ public class ValidatePassword {
 
 	public boolean passwordIsValid(NewUserDto newUserDto) {
 		String enteredPassword = newUserDto.getPassword();
+		
+		// Regex checks for password for: 
+		// lowercase letters [a-z], uppercase letters [A-Z], digits /d, special characters [@$!%*?&], minimum length {8,}
 		String regex = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$";
 		
         Pattern pattern = Pattern.compile(regex);
