@@ -128,6 +128,9 @@ public class UserController {
 		if (userIsAdmin(token)) map.put("isAdmin", "admin");
 		else map.put("isAdmin", "");
 		
+		// Return full name
+		map.put("name", foundUser.getFirstName() + " " + foundUser.getLastName());
+		
 		return map;
 	}
 	
