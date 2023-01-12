@@ -17,6 +17,7 @@ import java.time.LocalDateTime;
 
 import nl.workingtalent.bookrental.model.Copy;
 import nl.workingtalent.bookrental.model.Loan;
+import nl.workingtalent.bookrental.model.Reservation;
 import nl.workingtalent.bookrental.model.User;
 import nl.workingtalent.bookrental.repository.ICopyRepository;
 import nl.workingtalent.bookrental.repository.ILoanRepository;
@@ -116,5 +117,46 @@ public class LoanController {
 		loanRepo.save(loan);
 
 		return loan;
+	}
+	
+	@GetMapping("loan/active")
+	public List<Loan> getPendingLoans(@RequestHeader(name = "Authorization") String token) {
+
+		if (!userController.userIsAdmin(token)) {
+			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid permissions");
+		}
+
+		List<Loan> allLoans = loanRepo.findAll();
+		List<Loan> activeLoans = new ArrayList<Loan>();
+
+		for (Loan loan : allLoans) {
+			if (loan.getEndDate() == null || loan.getEndDate().equalsIgnoreCase("")) {
+				activeLoans.add(loan);
+			}
+		}
+
+		return activeLoans;
+	}
+	
+	@GetMapping("loan/active/user")
+	public List<Loan> getActiveUserLoans(@RequestHeader(name = "Authorization") String token) {
+
+		if (!userController.userIsLoggedIn(token)) {
+			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User is not logged in");
+		}
+		
+		long userId = userRepo.findByToken(token).getId();
+
+		List<Loan> pendingLoans = getPendingLoans("admin");
+		List<Loan> userReservations = new ArrayList<Loan>();
+
+		for (Loan loan : pendingLoans) {
+
+			// Book has already been reserved by user if:
+			if (loan.getUser().getId() == userId) {
+				userReservations.add(loan);
+			}
+		}
+		return userReservations;
 	}
 }
