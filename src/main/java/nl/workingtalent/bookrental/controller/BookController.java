@@ -3,7 +3,9 @@ package nl.workingtalent.bookrental.controller;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,14 +63,17 @@ public class BookController {
 	}
 
 	@DeleteMapping("book/{id}/delete")
-	public List<Book> delete(@RequestHeader(name = "Authorization") String token, @PathVariable long id) {
+	public Map<String, String> delete(@RequestHeader(name = "Authorization") String token, @PathVariable long id) {
 
 		if (!userController.userIsAdmin(token)) {
 			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid permissions for deleting book");
 		}
 
 		bookRepo.deleteById(id);
-		return findAllBooks();
+		
+		Map<String, String> map = new HashMap<String, String>();
+		map.put("succes", "succes");
+		return map;
 	}
 
 	@GetMapping("dummydata/books")
@@ -101,7 +106,7 @@ public class BookController {
 	}
 
 	@PutMapping("book/{id}/edit")
-	public List<Book> editBook(@RequestHeader(name = "Authorization") String token, @RequestBody Book book,
+	public Map<String, String> editBook(@RequestHeader(name = "Authorization") String token, @RequestBody Book book,
 			@PathVariable long id) {
 
 		if (!userController.userIsAdmin(token)) {
@@ -115,7 +120,9 @@ public class BookController {
 		prevBook.setTitle(book.getTitle());
 
 		bookRepo.save(prevBook);
-		return findAllBooks();
+		Map<String, String> map = new HashMap<String, String>();
+		map.put("succes", "succes");
+		return map;
 	}
 
 	@GetMapping("book/all")
