@@ -61,13 +61,14 @@ public class BookController {
 	}
 
 	@DeleteMapping("book/{id}/delete")
-	public void delete(@RequestHeader(name = "Authorization") String token, @PathVariable long id) {
+	public List<Book> delete(@RequestHeader(name = "Authorization") String token, @PathVariable long id) {
 
 		if (!userController.userIsAdmin(token)) {
 			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid permissions for deleting book");
 		}
 
 		bookRepo.deleteById(id);
+		return findAllBooks();
 	}
 
 	@GetMapping("dummydata/books")
@@ -100,7 +101,7 @@ public class BookController {
 	}
 
 	@PutMapping("book/{id}/edit")
-	public void editBook(@RequestHeader(name = "Authorization") String token, @RequestBody Book book,
+	public List<Book> editBook(@RequestHeader(name = "Authorization") String token, @RequestBody Book book,
 			@PathVariable long id) {
 
 		if (!userController.userIsAdmin(token)) {
@@ -114,6 +115,7 @@ public class BookController {
 		prevBook.setTitle(book.getTitle());
 
 		bookRepo.save(prevBook);
+		return findAllBooks();
 	}
 
 	@GetMapping("book/all")
