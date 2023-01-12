@@ -16,7 +16,6 @@ import org.springframework.web.server.ResponseStatusException;
 import nl.workingtalent.bookrental.model.Book;
 import nl.workingtalent.bookrental.model.Copy;
 import nl.workingtalent.bookrental.model.Loan;
-import nl.workingtalent.bookrental.model.Reservation;
 import nl.workingtalent.bookrental.repository.IBookRepository;
 import nl.workingtalent.bookrental.repository.ICopyRepository;
 import nl.workingtalent.bookrental.repository.IUserRepository;
