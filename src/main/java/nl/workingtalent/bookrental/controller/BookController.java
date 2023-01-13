@@ -72,7 +72,7 @@ public class BookController {
 		bookRepo.deleteById(id);
 		
 		Map<String, String> map = new HashMap<String, String>();
-		map.put("succes", "succes");
+		map.put("status", "succes");
 		return map;
 	}
 
@@ -121,7 +121,7 @@ public class BookController {
 
 		bookRepo.save(prevBook);
 		Map<String, String> map = new HashMap<String, String>();
-		map.put("succes", "succes");
+		map.put("status", "succes");
 		return map;
 	}
 
