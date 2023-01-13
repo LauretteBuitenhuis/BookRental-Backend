@@ -82,10 +82,11 @@ public class BookController {
 	public List<Book> insertDummyBooks() {
 		ObjectMapper mapper = new ObjectMapper();
 
-		InputStream inputStream = Book.class.getResourceAsStream("/dummy-books.json");
-		CollectionType collectionType = mapper.getTypeFactory().constructCollectionType(List.class, Book.class);
+		InputStream inputStream = NewBookDto.class.getResourceAsStream("/dummy-books.json");
+		CollectionType collectionType = mapper.getTypeFactory().constructCollectionType(List.class, NewBookDto.class);
 
-		List<Book> books = new ArrayList<Book>();
+		List<NewBookDto> books = new ArrayList<NewBookDto>();
+		System.out.println(books);
 
 		try {
 			books = mapper.readValue(inputStream, collectionType);
@@ -93,7 +94,7 @@ public class BookController {
 			System.out.println("Error loading JSON file");
 		}
 
-		for (Book book : books) {
+		for (NewBookDto book : books) {
 
 			Book databaseBook = createBook("admin", book);
 

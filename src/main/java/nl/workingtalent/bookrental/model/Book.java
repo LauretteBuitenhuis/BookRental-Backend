@@ -22,8 +22,6 @@ public class Book {
 		this.title = title;
 		this.author = author;
 		this.isbn = isbn;
-		this.tags = null;
-		this.copies = null;
 	}
 	
 	@Id
