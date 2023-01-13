@@ -24,6 +24,7 @@ import org.springframework.web.server.ResponseStatusException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.CollectionType;
 
+import nl.workingtalent.bookrental.dto.NewBookDto;
 import nl.workingtalent.bookrental.model.Book;
 import nl.workingtalent.bookrental.model.Copy;
 import nl.workingtalent.bookrental.model.Loan;
@@ -52,12 +53,13 @@ public class BookController {
 	private CopyController copyController;
 
 	@PostMapping("book/create")
-	public Book createBook(@RequestHeader(name = "Authorization") String token, @RequestBody Book book) {
+	public Book createBook(@RequestHeader(name = "Authorization") String token, @RequestBody NewBookDto NewBookDto) {
 
 		if (!userController.userIsAdmin(token)) {
 			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid permissions for creating book");
 		}
 
+		Book book = new Book(NewBookDto.getTitle(),NewBookDto.getAuthor(),NewBookDto.getIsbn());
 		bookRepo.save(book);
 		return book;
 	}

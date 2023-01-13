@@ -14,6 +14,18 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 public class Book {
+	public Book() {
+		// TODO Spring need this Default constructor. Add some status code?
+	}
+
+	public Book(String title, String author, String isbn) {
+		this.title = title;
+		this.author = author;
+		this.isbn = isbn;
+		this.tags = null;
+		this.copies = null;
+	}
+	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long id;
