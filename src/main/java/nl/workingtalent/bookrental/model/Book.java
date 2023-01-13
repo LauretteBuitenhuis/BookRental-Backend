@@ -14,15 +14,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 public class Book {
-
-	/*
-	 * public Book(String title, String author, String isbn) { super(); this.title =
-	 * title; this.author = author; this.isbn = isbn;
-	 * 
-	 * this.tags = new ArrayList<Tag>();; this.copies = new ArrayList<Copy>();
-	 * this.reservations = new ArrayList<Reservation>();; }
-	 */
-
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long id;
