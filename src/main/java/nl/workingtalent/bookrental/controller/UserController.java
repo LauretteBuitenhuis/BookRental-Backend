@@ -46,7 +46,8 @@ public class UserController {
 	@Autowired
 	private EmailService emailService;
 	
-	@Autowired ValidatePassword validatePassword;
+	@Autowired 
+	private ValidatePassword validatePassword;
 	
 	@PostMapping("user/create")
 	@ResponseStatus(code=HttpStatus.CREATED)
@@ -212,17 +213,18 @@ public class UserController {
 	}
 	
 	@DeleteMapping("user/{id}/delete")
-	public void delete(@RequestHeader(name = "Authorization") String token, @PathVariable long id) {
+	public List<User> delete(@RequestHeader(name = "Authorization") String token, @PathVariable long id) {
 
 		if (!userIsAdmin(token)) {
 			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid permissions for deleting book");
 		}
 
 		userRepo.deleteById(id);
+		return findAllUsers();
 	}
 	
 	@PutMapping("user/{id}/edit")
-	public void editUser(@RequestHeader(name = "Authorization") String token, @RequestBody User user,
+	public Map<String,String> editUser(@RequestHeader(name = "Authorization") String token, @RequestBody User user,
 			@PathVariable long id) {
 
 		if (!userIsAdmin(token)) {
@@ -236,5 +238,8 @@ public class UserController {
 		prevUser.setEmail(user.getEmail());
 
 		userRepo.save(prevUser);
+		Map<String, String> map = new HashMap<String, String>();
+		map.put("status", "succes");
+		return map;
 	}
 }
