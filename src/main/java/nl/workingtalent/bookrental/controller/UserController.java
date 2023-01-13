@@ -67,7 +67,7 @@ public class UserController {
 		}
 		
 		// Check password
-		if (validatePassword.passwordIsValid(newUserDto) == false) {
+		if (validatePassword.passwordIsValid(newUserDto.getPassword()) == false) {
 			throw new ResponseStatusException(HttpStatus.CONFLICT, "Password does not meet the requirements.\n"
 					+ "Your password must have:\n"
 					+ "- Minimum of eight characters\n"

@@ -17,7 +17,6 @@ import java.time.LocalDateTime;
 
 import nl.workingtalent.bookrental.model.Copy;
 import nl.workingtalent.bookrental.model.Loan;
-import nl.workingtalent.bookrental.model.Reservation;
 import nl.workingtalent.bookrental.model.User;
 import nl.workingtalent.bookrental.repository.ICopyRepository;
 import nl.workingtalent.bookrental.repository.ILoanRepository;
