@@ -105,7 +105,6 @@ public class BookController {
 		CollectionType collectionType = mapper.getTypeFactory().constructCollectionType(List.class, NewBookDto.class);
 
 		List<NewBookDto> books = new ArrayList<NewBookDto>();
-		System.out.println(books);
 
 		try {
 			books = mapper.readValue(inputStream, collectionType);

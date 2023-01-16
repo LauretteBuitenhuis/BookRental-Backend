@@ -2,6 +2,9 @@ package nl.workingtalent.bookrental.dto;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class NewBookDto {
@@ -11,6 +14,7 @@ public class NewBookDto {
 	private final String isbn;
 	private final List<String> tags;
 	
+	
 	@JsonCreator
 	public NewBookDto(@JsonProperty("title") String title, @JsonProperty("author") String author, 
 	@JsonProperty("isbn") String isbn, @JsonProperty("tags") List<String> tags) {
@@ -19,6 +23,7 @@ public class NewBookDto {
 		this.isbn = isbn;
 		this.tags = tags;
 	}
+
 	
 	public String getTitle() {
 		return title;
