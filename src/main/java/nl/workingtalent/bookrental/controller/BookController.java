@@ -67,6 +67,10 @@ public class BookController {
 		
 		// Add tags
 		for (String tag:NewBookDto.getTags()) {
+			//remove white spaces & capital letters
+			tag=tag.trim();
+			tag=tag.toLowerCase();
+			
 			tagController.createTag(token, tag, book.getId());
 		}
 		
