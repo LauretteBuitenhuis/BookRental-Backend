@@ -51,6 +51,9 @@ public class BookController {
 
 	@Autowired
 	private CopyController copyController;
+	
+	@Autowired
+	private TagController tagController;
 
 	@PostMapping("book/create")
 	public Book createBook(@RequestHeader(name = "Authorization") String token, @RequestBody NewBookDto NewBookDto) {
@@ -58,9 +61,21 @@ public class BookController {
 		if (!userController.userIsAdmin(token)) {
 			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid permissions for creating book");
 		}
-
+		
 		Book book = new Book(NewBookDto.getTitle(),NewBookDto.getAuthor(),NewBookDto.getIsbn());
 		bookRepo.save(book);
+		
+		// Add tags
+		for (String tag:NewBookDto.getTags()) {
+			tagController.createTag(token, tag, book.getId());
+		}
+		
+		// Generate random amount of copies between 1 and 3
+		Random random = new Random();
+		for (int i = 0; i < random.ints(1, 4).findFirst().getAsInt(); i++) {
+			copyController.createCopy(token, book.getId());
+		}
+
 		return book;
 	}
 
@@ -72,7 +87,7 @@ public class BookController {
 		}
 
 		bookRepo.deleteById(id);
-		
+
 		Map<String, String> map = new HashMap<String, String>();
 		map.put("status", "succes");
 		return map;
@@ -96,13 +111,7 @@ public class BookController {
 
 		for (NewBookDto book : books) {
 
-			Book databaseBook = createBook("admin", book);
-
-			// Generate random amount of copies between 1 and 3
-			Random random = new Random();
-			for (int i = 0; i < random.ints(1, 4).findFirst().getAsInt(); i++) {
-				copyController.createCopy("admin", databaseBook.getId());
-			}
+			createBook("admin", book);
 		}
 
 		return findAllBooks();
@@ -145,7 +154,7 @@ public class BookController {
 		List<Book> books = bookRepo.findAll();
 		List<Book> booksNotReservedByUser = new ArrayList<Book>();
 
-		// Go over all 
+		// Go over all
 		outerloop: for (Book book : books) {
 
 			for (Reservation reservation : book.getReservations()) {
@@ -169,28 +178,27 @@ public class BookController {
 	public Book findBook(@PathVariable long id) {
 		return bookRepo.findById(id).get();
 	}
-	
+
 	@GetMapping("book/copy/{id}")
 	public List<Copy> getAvailableCopiesById(@PathVariable long id) {
-		
+
 		List<Copy> copies = copyRepo.findAll();
 		List<Copy> copiesOfBook = new ArrayList<Copy>();
-		
-		outerloop: 
-		for (Copy copy : copies) {
-			
+
+		outerloop: for (Copy copy : copies) {
+
 			if (copy.getBook().getId() == id) {
-				
+
 				for (Loan loan : copy.getLoans()) {
-					
+
 					if (loan.getEndDate() == null || loan.getEndDate().equalsIgnoreCase(""))
 						continue outerloop;
 				}
-				
+
 				copiesOfBook.add(copy);
 			}
 		}
-		
+
 		return copiesOfBook;
 	}
 }

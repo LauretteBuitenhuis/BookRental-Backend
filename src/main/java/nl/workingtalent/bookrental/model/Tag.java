@@ -9,6 +9,14 @@ import javax.persistence.ManyToOne;
 
 @Entity
 public class Tag {
+	
+	public Tag() {}
+
+	public Tag(String tag, Book book) {
+		super();
+		this.name = tag;
+		this.book = book;
+	}
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
