@@ -51,6 +51,12 @@ public class BookController {
 	@Autowired
 	private CopyController copyController;
 
+	@Autowired
+	private LoanController loanController;
+
+	@Autowired
+	private ReservationController reservationController;
+
 	@PostMapping("book/create")
 	public Book createBook(@RequestHeader(name = "Authorization") String token, @RequestBody Book book) {
 
@@ -58,7 +64,16 @@ public class BookController {
 			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid permissions for creating book");
 		}
 
-		bookRepo.save(book);
+		Book savedBook = bookRepo.save(book);
+
+		// Generate random amount of copies between 1 and 3
+		Random random = new Random();
+		for (int i = 0; i < random.ints(1, 4).findFirst().getAsInt(); i++) {
+			copyController.createCopy("admin", savedBook.getId());
+		}
+
+		bookRepo.save(savedBook);
+
 		return book;
 	}
 
@@ -69,8 +84,38 @@ public class BookController {
 			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid permissions for deleting book");
 		}
 
-		bookRepo.deleteById(id);
+		Book book = bookRepo.findById(id).get();
+
+		for (Copy copy : book.getCopies()) {
+
+			// Disable copy
+			copy.setInService(false);
+			copyRepo.save(copy);
+
+			// End active loan
+			for (Loan loan : copy.getLoans()) {
+
+				// Copy is currently being rented and does NOT have an end date
+				if (loan.getStartDate() != null && !loan.getStartDate().equalsIgnoreCase("")) {
+					if (loan.getEndDate() == null || loan.getEndDate().equalsIgnoreCase("")) {
+						loanController.endLoanWithId(token, loan.getId());
+					}
+				}
+			}
+		}
+
+		// Decline pending reservations
+		for (Reservation reservation : book.getReservations()) {
+			if (reservation.getStatus().equalsIgnoreCase("Pending")) {
+				reservationController.denyReservation(token, reservation.getId());
+			}
+		}
 		
+		book.setTitle("Titel van gedeletet book");
+		book.setAuthor("Auteur van gedeletet book");
+		book.setIsbn("ISBN van gedeletet book");
+		bookRepo.save(book);
+
 		Map<String, String> map = new HashMap<String, String>();
 		map.put("status", "succes");
 		return map;
@@ -94,15 +139,9 @@ public class BookController {
 		for (Book book : books) {
 
 			Book databaseBook = createBook("admin", book);
-
-			// Generate random amount of copies between 1 and 3
-			Random random = new Random();
-			for (int i = 0; i < random.ints(1, 4).findFirst().getAsInt(); i++) {
-				copyController.createCopy("admin", databaseBook.getId());
-			}
 		}
 
-		return findAllBooks();
+		return findAllInServiceBooks();
 	}
 
 	@PutMapping("book/{id}/edit")
@@ -126,8 +165,25 @@ public class BookController {
 	}
 
 	@GetMapping("book/all")
-	public List<Book> findAllBooks() {
-		return bookRepo.findAll();
+	public List<Book> findAllInServiceBooks() {
+
+		List<Book> allBooks = bookRepo.findAll();
+		List<Book> inServiceBooks = new ArrayList<Book>();
+
+		// Loop over all books in database
+		outerloop: 
+		for (Book book : allBooks) {
+
+			// Loop over all copies, if all copies are disabled, the book can be deemed as: 'not in service'
+			for (Copy copy : book.getCopies()) {
+				if (copy.isInService()) {
+					inServiceBooks.add(book);
+					continue outerloop;
+				}
+			}
+		}
+
+		return inServiceBooks;
 	}
 
 	@GetMapping("book/all/user")
@@ -139,10 +195,10 @@ public class BookController {
 
 		long userId = userRepo.findByToken(token).getId();
 
-		List<Book> books = bookRepo.findAll();
+		List<Book> books = findAllInServiceBooks();
 		List<Book> booksNotReservedByUser = new ArrayList<Book>();
 
-		// Go over all 
+		// Go over all
 		outerloop: for (Book book : books) {
 
 			for (Reservation reservation : book.getReservations()) {
@@ -151,7 +207,7 @@ public class BookController {
 
 				// Book has already been reserved by user if:
 				if (reservationUserId == userId) {
-					if (reservation.getStatus().equals("PENDING"))
+					if (reservation.getStatus().equals("Pending"))
 						continue outerloop;
 				}
 			}
@@ -166,28 +222,31 @@ public class BookController {
 	public Book findBook(@PathVariable long id) {
 		return bookRepo.findById(id).get();
 	}
-	
+
 	@GetMapping("book/copy/{id}")
 	public List<Copy> getAvailableCopiesById(@PathVariable long id) {
-		
+
 		List<Copy> copies = copyRepo.findAll();
 		List<Copy> copiesOfBook = new ArrayList<Copy>();
-		
-		outerloop: 
-		for (Copy copy : copies) {
-			
+
+		outerloop: for (Copy copy : copies) {
+
+			// Only allow admins to pick copies that are in service
+			if (!copy.isInService())
+				continue;
+
 			if (copy.getBook().getId() == id) {
-				
+
 				for (Loan loan : copy.getLoans()) {
-					
+
 					if (loan.getEndDate() == null || loan.getEndDate().equalsIgnoreCase(""))
 						continue outerloop;
 				}
-				
+
 				copiesOfBook.add(copy);
 			}
 		}
-		
+
 		return copiesOfBook;
 	}
 }

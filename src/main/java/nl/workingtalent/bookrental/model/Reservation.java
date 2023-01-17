@@ -24,7 +24,7 @@ public class Reservation {
 	private long id;
 	
 	@Column(nullable = false)
-	private String status = "PENDING";
+	private String status = "Pending";
 	
 	@ManyToOne(optional = false)
 	private Book book;

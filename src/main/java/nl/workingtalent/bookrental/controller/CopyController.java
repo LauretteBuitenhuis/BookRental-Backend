@@ -52,7 +52,7 @@ public class CopyController {
 	}
 
 	@GetMapping("book/all/loaned")
-	public List<Copy> getAllCurrentLoans(@RequestHeader(name = "Authorization") String token) {
+	public List<Copy> getAllCurrentlyRentedCopies(@RequestHeader(name = "Authorization") String token) {
 
 		if (!userController.userIsLoggedIn(token)) {
 			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User is not logged in");
@@ -77,7 +77,7 @@ public class CopyController {
 	}
 
 	@GetMapping("book/all/loaned/user")
-	public List<Copy> getAllCurrentLoansByUser(@RequestHeader(name = "Authorization") String token) {
+	public List<Copy> getAllCurrentlyRentedCopiesOfUser(@RequestHeader(name = "Authorization") String token) {
 
 		if (!userController.userIsLoggedIn(token)) {
 			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User is not logged in");
