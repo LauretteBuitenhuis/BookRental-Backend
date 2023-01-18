@@ -13,46 +13,50 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 public class User {
-	
-		public User() {
+
+	public User() {
 		// TODO Spring need this Default constructor. Add some status code?
 	}
 
-	public User(String firstName, String lastName, String email, String password, boolean admin,
-			boolean enabled) {
+	public User(String firstName, String lastName, String email, String password, boolean admin, boolean enabled,
+			boolean inService) {
 		this.firstName = firstName;
 		this.lastName = lastName;
 		this.email = email;
 		this.password = password;
 		this.admin = admin;
 		this.enabled = enabled;
+		this.inService = inService;
 	}
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long id;
-	
+
 	@Column(nullable = false)
 	private String firstName;
-	
+
 	@Column(nullable = false)
 	private String lastName;
-	
+
 	@Column(nullable = false, unique = true)
 	private String email;
-	
+
 	@Column(nullable = false)
 	private String password;
-	
+
 	@Column(nullable = false)
 	private boolean admin;
 
 	@Column(nullable = false)
-	private boolean enabled; // activated
-	
+	private boolean enabled; // Password has been updated, and account is ready for use
+
+	@Column(nullable = false)
+	private boolean inService; // Account can be used to log-in and make reservations
+
 	@Column(nullable = true, length = 200, unique = true)
 	private String token;
-	
+
 	@JsonIgnore
 	@OneToMany(mappedBy = "user")
 	private List<Reservation> reservations;
@@ -116,11 +120,11 @@ public class User {
 	public void setEnabled(boolean enabled) {
 		this.enabled = enabled;
 	}
-	
+
 	public String getToken() {
 		return token;
 	}
-	
+
 	public void setToken(String token) {
 		this.token = token;
 	}
@@ -132,7 +136,7 @@ public class User {
 	public void addReservation(Reservation reservation) {
 		this.reservations.add(reservation);
 	}
-	
+
 	public void removeReservation(Reservation reservation) {
 		this.reservations.remove(reservation);
 	}
@@ -144,8 +148,16 @@ public class User {
 	public void addLoan(Loan loan) {
 		this.loans.add(loan);
 	}
-	
+
 	public void removeLoan(Loan loan) {
 		this.loans.remove(loan);
+	}
+
+	public boolean isInService() {
+		return inService;
+	}
+
+	public void setInService(boolean inService) {
+		this.inService = inService;
 	}
 }
