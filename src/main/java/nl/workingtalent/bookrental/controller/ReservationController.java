@@ -56,7 +56,7 @@ public class ReservationController {
 
 		Book book = bookRepo.findById(bookId).get();
 		User user = userRepo.findById(userId).get();
-		Reservation reservation = new Reservation("PENDING", book, user);
+		Reservation reservation = new Reservation("Pending", book, user);
 
 		book.addReservation(reservation);
 
@@ -77,7 +77,7 @@ public class ReservationController {
 
 		Reservation reservation = reservationRepo.findById(reservationId).get();
 
-		reservation.setStatus("APPROVED");
+		reservation.setStatus("Approved");
 
 		reservationRepo.save(reservation);
 
@@ -100,7 +100,7 @@ public class ReservationController {
 	}
 
 	@PutMapping("reservation/deny/{reservationId}")
-	public Reservation updateReservationApproval(@RequestHeader(name = "Authorization") String token,
+	public Reservation denyReservation(@RequestHeader(name = "Authorization") String token,
 			@PathVariable long reservationId) {
 
 		if (!userController.userIsAdmin(token)) {
@@ -129,7 +129,7 @@ public class ReservationController {
 		allReservations = reservationRepo.findAll();
 
 		for (Reservation reservation : allReservations) {
-			if (reservation.getStatus().equalsIgnoreCase("PENDING")) {
+			if (reservation.getStatus().equalsIgnoreCase("Pending")) {
 				pendingReservations.add(reservation);
 			}
 		}
@@ -155,7 +155,7 @@ public class ReservationController {
 
 			// Book has already been reserved by user if:
 			if (reservation.getUser().getId() == userId) {
-				if (reservation.getStatus().equalsIgnoreCase("PENDING"))
+				if (reservation.getStatus().equalsIgnoreCase("Pending"))
 					userReservations.add(reservation);
 			}
 		}
