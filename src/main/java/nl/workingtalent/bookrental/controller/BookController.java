@@ -110,11 +110,6 @@ public class BookController {
 				reservationController.denyReservation(token, reservation.getId());
 			}
 		}
-		
-		book.setTitle("Titel van gedeletet book");
-		book.setAuthor("Auteur van gedeletet book");
-		book.setIsbn("ISBN van gedeletet book");
-		bookRepo.save(book);
 
 		Map<String, String> map = new HashMap<String, String>();
 		map.put("status", "succes");
