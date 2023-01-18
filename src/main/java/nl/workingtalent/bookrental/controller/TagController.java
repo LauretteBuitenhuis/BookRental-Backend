@@ -36,10 +36,14 @@ public class TagController {
 		
 		Book book = bookRepo.findById(bookId).get();
 		
-//		 Check if Tag already exists
-//		 TODO Anybody knows how I can remove the repeated code in if/else statement?
-		
+
 		Tag tagName = new Tag(tag);
+		
+		// If Tag already exists overwrite tagName with existing tag
+		if (tagRepo.findByName(tag)!=null) {
+			tagName = tagRepo.findByName(tag);
+		}
+		
 		tagName.addBook(book);
 		book.addTag(tagName);
 		
@@ -47,24 +51,5 @@ public class TagController {
 		bookRepo.save(book);
 		return tagName;
 	}
-		
-//		if(tagRepo.findByName(tag)==null) {
-//			System.out.println("Tag does not exist yet");
-//			Tag tagName = new Tag(tag,book);
-//			tagRepo.save(tagName);
-//			book.addTag(tagName);
-//			bookRepo.save(book);
-//			//
-//			return tagName;
-//		}
-//		else {
-//			System.out.println("tag does already exist");
-//			Tag tagName = tagRepo.findByName(tag);
-//			book.addTag(tagName);
-//			bookRepo.save(book);
-//			
-//			return tagName;
-//		}
-//		
 
 }
