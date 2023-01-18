@@ -66,14 +66,15 @@ public class BookController {
 		bookRepo.save(book);
 		
 		// Add tags
-		for (String tag:NewBookDto.getTags()) {
-			//remove white spaces & capital letters
-			tag=tag.trim();
-			tag=tag.toLowerCase();
-			
-			tagController.createTag(token, tag, book.getId());
+		if (NewBookDto.getTags()!=null) {
+			for (String tag:NewBookDto.getTags()) {
+				//remove white spaces & capital letters
+				tag=tag.trim();
+				tag=tag.toLowerCase();
+				
+				tagController.createTag(token, tag, book.getId());
+			}
 		}
-		
 		// Generate random amount of copies between 1 and 3
 		Random random = new Random();
 		for (int i = 0; i < random.ints(1, 4).findFirst().getAsInt(); i++) {

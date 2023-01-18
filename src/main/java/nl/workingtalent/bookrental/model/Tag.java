@@ -1,32 +1,38 @@
 package nl.workingtalent.bookrental.model;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.ManyToOne;
+import javax.persistence.ManyToMany;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 public class Tag {
 	
 	public Tag() {}
 
-	public Tag(String tag, Book book) {
+	public Tag(String tag) {
 		super();
 		this.name = tag;
-		this.book = book;
 	}
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name="tag_id")
 	private long id;
 	
-	@Column(nullable = false)
+	@Column(name="tag_name", nullable = false)
 	private String name;
 	
-	@ManyToOne(optional = false)
-	private Book book;
+	@JsonIgnore
+	@ManyToMany(mappedBy = "tags")
+	private Set<Book> books =new HashSet<Book>();
 
 	public long getId() {
 		return id;
@@ -44,11 +50,11 @@ public class Tag {
 		this.name = name;
 	}
 
-	public Book getBook() {
-		return book;
+	public Set<Book> getBooks() {
+		return books;
 	}
 
-	public void setBook(Book book) {
-		this.book = book;
+	public void addBook(Book book) {
+		this.books.add(book);
 	}
 }
