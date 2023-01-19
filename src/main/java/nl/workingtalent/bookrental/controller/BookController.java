@@ -28,8 +28,10 @@ import nl.workingtalent.bookrental.model.Book;
 import nl.workingtalent.bookrental.model.Copy;
 import nl.workingtalent.bookrental.model.Loan;
 import nl.workingtalent.bookrental.model.Reservation;
+import nl.workingtalent.bookrental.model.User;
 import nl.workingtalent.bookrental.repository.IBookRepository;
 import nl.workingtalent.bookrental.repository.ICopyRepository;
+import nl.workingtalent.bookrental.repository.ILoanRepository;
 import nl.workingtalent.bookrental.repository.IUserRepository;
 
 @RestController
@@ -44,6 +46,9 @@ public class BookController {
 
 	@Autowired
 	private IUserRepository userRepo;
+	
+	@Autowired
+	private ILoanRepository loanRepo;
 
 	@Autowired
 	private UserController userController;
@@ -248,5 +253,51 @@ public class BookController {
 		}
 
 		return copiesOfBook;
+	}
+	
+	@DeleteMapping("user/{id}/delete")
+	public List<User> deleteUser(@RequestHeader(name = "Authorization") String token, @PathVariable long id) {
+
+		if (!userController.userIsAdmin(token)) {
+			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid permissions for deleting book");
+		}
+
+		User user = userRepo.findById(id).get();
+
+		// Deactivate all active loans of user
+		List<Loan> allLoans = loanRepo.findAll();
+
+		for (Loan loan : allLoans) {
+			if (loan.getUser().getId() == id) {
+				// Copy is being rented and does NOT have an end date
+				if (loan.getStartDate() != null && !loan.getStartDate().equalsIgnoreCase("")) {
+					if (loan.getEndDate() != null && !loan.getEndDate().equalsIgnoreCase("")) {
+						// End active loan of user
+						loanController.endLoanWithId(token, loan.getId());
+					}
+				}
+			}
+		}
+
+		// Decline all reservations of user
+		List<Reservation> allPendingReservations = reservationController.getPendingReservations(token);
+
+		for (Reservation reservation : allPendingReservations) {
+			if (reservation.getUser().getId() == id) {
+				reservationController.denyReservation(token, reservation.getId());
+			}
+		}
+
+		// Anonymize user
+		user.setFirstName("Anonieme");
+		user.setLastName("Gebruiker");
+		user.setEmail("");
+
+		// Deactivate user
+		user.setEnabled(false);
+		user.setInService(false);
+		userRepo.save(user);
+
+		return userController.findAllUsers();
 	}
 }

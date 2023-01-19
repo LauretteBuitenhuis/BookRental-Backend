@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,15 +52,6 @@ public class UserController {
 
 	@Autowired
 	private ValidatePassword validatePassword;
-
-	@Autowired
-	private LoanController loanController;
-
-	@Autowired
-	private ILoanRepository loanRepo;
-
-	@Autowired
-	private ReservationController reservationController;
 
 	@PostMapping("user/create")
 	@ResponseStatus(code = HttpStatus.CREATED)
@@ -218,51 +210,20 @@ public class UserController {
 	public List<User> findAllUsers() {
 		return userRepo.findAll();
 	}
-
-	@DeleteMapping("user/{id}/delete")
-	public List<User> delete(@RequestHeader(name = "Authorization") String token, @PathVariable long id) {
-
-		if (!userIsAdmin(token)) {
-			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid permissions for deleting book");
-		}
-
-		User user = userRepo.findById(id).get();
-
-		// Deactivate all active loans of user
-		List<Loan> allLoans = loanRepo.findAll();
-
-		for (Loan loan : allLoans) {
-			if (loan.getUser().getId() == id) {
-				// Copy is being rented and does NOT have an end date
-				if (loan.getStartDate() != null && !loan.getStartDate().equalsIgnoreCase("")) {
-					if (loan.getEndDate() != null && !loan.getEndDate().equalsIgnoreCase("")) {
-						// End active loan of user
-						loanController.endLoanWithId(token, loan.getId());
-					}
-				}
-			}
-		}
-
-		// Decline all reservations of user
-		List<Reservation> allPendingReservations = reservationController.getPendingReservations(token);
-
-		for (Reservation reservation : allPendingReservations) {
-			if (reservation.getUser().getId() == id) {
-				reservationController.denyReservation(token, reservation.getId());
-			}
-		}
-
-		// Anonymize user
-		user.setFirstName("Anonieme");
-		user.setLastName("Gebruiker");
-		user.setEmail("");
-
-		// Deactivate user
-		user.setEnabled(false);
-		user.setInService(false);
-		userRepo.save(user);
-
-		return findAllUsers();
+	
+	@GetMapping("user/all/inservice")
+	public List<User> findAllUsersInService() {
+		return findAllUsers().stream().filter(user -> user.isInService() == true).collect(Collectors.toList());
+	}
+	
+	@GetMapping("user/all/enabled")
+	public List<User> findAllEnabledUsers() {
+		return findAllUsers().stream().filter(user -> user.isEnabled() == true).collect(Collectors.toList());
+	}
+	
+	@GetMapping("user/all/enabled+inservice")
+	public List<User> findAllEnabledAndInServiceUsers() {
+		return findAllUsersInService().stream().filter(user -> user.isEnabled() == true).collect(Collectors.toList());
 	}
 
 	@PutMapping("user/{id}/edit")
