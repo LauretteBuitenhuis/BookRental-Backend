@@ -25,6 +25,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.CollectionType;
 
 import nl.workingtalent.bookrental.dto.NewBookDto;
+import nl.workingtalent.bookrental.dto.NewUserDto;
 import nl.workingtalent.bookrental.model.Book;
 import nl.workingtalent.bookrental.model.Copy;
 import nl.workingtalent.bookrental.model.Loan;
@@ -122,7 +123,7 @@ public class BookController {
 	}
 
 	@PutMapping("book/{id}/edit")
-	public Map<String, String> editBook(@RequestHeader(name = "Authorization") String token, @RequestBody Book book,
+	public Map<String, String> editBook(@RequestHeader(name = "Authorization") String token, @RequestBody NewBookDto book,
 			@PathVariable long id) {
 
 		if (!userController.userIsAdmin(token)) {
@@ -134,6 +135,18 @@ public class BookController {
 		prevBook.setAuthor(book.getAuthor());
 		prevBook.setIsbn(book.getIsbn());
 		prevBook.setTitle(book.getTitle());
+		
+		// To ensure all tags are removed and added; first clear the existing tags Set in book before adding all tags again
+				if (book.getTags()!=null) {
+					prevBook.getTags().clear();
+					for (String tag:book.getTags()) {
+						//remove white spaces & capital letters
+						tag=tag.trim();
+						tag=tag.toLowerCase();
+						
+						tagController.createTag(token, tag, prevBook.getId());
+					}
+				}
 
 		bookRepo.save(prevBook);
 		Map<String, String> map = new HashMap<String, String>();

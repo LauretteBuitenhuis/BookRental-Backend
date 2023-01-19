@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -41,9 +42,8 @@ public class Book {
 	@Column(nullable = false, length = 20)
 	private String isbn;
 	
-	@JsonIgnore
 	@JoinTable(name="tag_book", joinColumns=@JoinColumn(name="book_id"),inverseJoinColumns=@JoinColumn(name="tag_id"))
-	@ManyToMany()
+	@ManyToMany(cascade= {CascadeType.MERGE,CascadeType.REFRESH,CascadeType.DETACH,CascadeType.PERSIST})
 	private Set<Tag> tags = new HashSet<Tag>();
 	
 	@JsonIgnore
