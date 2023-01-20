@@ -35,14 +35,14 @@ public class CopyController {
 
 	@PostMapping("copy/create/{bookId}")
 	public Copy createCopy(@RequestHeader(name = "Authorization") String token, @PathVariable long bookId) {
-
+		
 		if (!userController.userIsAdmin(token)) {
 			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid permissions for creating Copy");
 		}
 
 		Book book = bookRepo.findById(bookId).get();
 		Copy copy = new Copy(book);
-
+		
 		book.addCopy(copy);
 
 		copyRepo.save(copy);

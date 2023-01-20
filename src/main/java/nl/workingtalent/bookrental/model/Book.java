@@ -1,30 +1,36 @@
 package nl.workingtalent.bookrental.model;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 public class Book {
+	public Book() {}
 
-	/*
-	 * public Book(String title, String author, String isbn) { super(); this.title =
-	 * title; this.author = author; this.isbn = isbn;
-	 * 
-	 * this.tags = new ArrayList<Tag>();; this.copies = new ArrayList<Copy>();
-	 * this.reservations = new ArrayList<Reservation>();; }
-	 */
-
+	public Book(String title, String author, String isbn) {
+		this.title = title;
+		this.author = author;
+		this.isbn = isbn;
+	}
+	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name="book_id")
 	private long id;
 	
 	@Column(nullable = false, length = 100)
@@ -36,9 +42,9 @@ public class Book {
 	@Column(nullable = false, length = 20)
 	private String isbn;
 	
-	@JsonIgnore
-	@OneToMany(mappedBy = "book")
-	private List<Tag> tags  = new ArrayList<Tag>();
+	@JoinTable(name="tag_book", joinColumns=@JoinColumn(name="book_id"),inverseJoinColumns=@JoinColumn(name="tag_id"))
+	@ManyToMany(cascade= {CascadeType.MERGE,CascadeType.REFRESH,CascadeType.DETACH,CascadeType.PERSIST})
+	private Set<Tag> tags = new HashSet<Tag>();
 	
 	@JsonIgnore
 	@OneToMany(mappedBy = "book")
@@ -80,12 +86,12 @@ public class Book {
 		this.isbn = isbn;
 	}
 
-	public List<Tag> getTags() {
+	public Set<Tag> getTags() {
 		return tags;
 	}
 
-	public void setTags(List<Tag> tags) {
-		this.tags = tags;
+	public void addTag(Tag tag) {
+		this.tags.add(tag);
 	}
 
 	public List<Copy> getCopies() {

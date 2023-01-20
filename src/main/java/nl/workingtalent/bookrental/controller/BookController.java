@@ -24,6 +24,8 @@ import org.springframework.web.server.ResponseStatusException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.CollectionType;
 
+import nl.workingtalent.bookrental.dto.NewBookDto;
+import nl.workingtalent.bookrental.dto.NewUserDto;
 import nl.workingtalent.bookrental.model.Book;
 import nl.workingtalent.bookrental.model.Copy;
 import nl.workingtalent.bookrental.model.Loan;
@@ -50,15 +52,36 @@ public class BookController {
 
 	@Autowired
 	private CopyController copyController;
+	
+	@Autowired
+	private TagController tagController;
 
 	@PostMapping("book/create")
-	public Book createBook(@RequestHeader(name = "Authorization") String token, @RequestBody Book book) {
+	public Book createBook(@RequestHeader(name = "Authorization") String token, @RequestBody NewBookDto NewBookDto) {
 
 		if (!userController.userIsAdmin(token)) {
 			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid permissions for creating book");
 		}
-
+		
+		Book book = new Book(NewBookDto.getTitle(),NewBookDto.getAuthor(),NewBookDto.getIsbn());
 		bookRepo.save(book);
+		
+		// Add tags
+		if (NewBookDto.getTags()!=null) {
+			for (String tag:NewBookDto.getTags()) {
+				//remove white spaces & capital letters
+				tag=tag.trim();
+				tag=tag.toLowerCase();
+				
+				tagController.createTag(token, tag, book.getId());
+			}
+		}
+		// Generate random amount of copies between 1 and 3
+		Random random = new Random();
+		for (int i = 0; i < random.ints(1, 4).findFirst().getAsInt(); i++) {
+			copyController.createCopy(token, book.getId());
+		}
+
 		return book;
 	}
 
@@ -70,7 +93,7 @@ public class BookController {
 		}
 
 		bookRepo.deleteById(id);
-		
+
 		Map<String, String> map = new HashMap<String, String>();
 		map.put("status", "succes");
 		return map;
@@ -80,10 +103,10 @@ public class BookController {
 	public List<Book> insertDummyBooks() {
 		ObjectMapper mapper = new ObjectMapper();
 
-		InputStream inputStream = Book.class.getResourceAsStream("/dummy-books.json");
-		CollectionType collectionType = mapper.getTypeFactory().constructCollectionType(List.class, Book.class);
+		InputStream inputStream = NewBookDto.class.getResourceAsStream("/dummy-books.json");
+		CollectionType collectionType = mapper.getTypeFactory().constructCollectionType(List.class, NewBookDto.class);
 
-		List<Book> books = new ArrayList<Book>();
+		List<NewBookDto> books = new ArrayList<NewBookDto>();
 
 		try {
 			books = mapper.readValue(inputStream, collectionType);
@@ -91,22 +114,16 @@ public class BookController {
 			System.out.println("Error loading JSON file");
 		}
 
-		for (Book book : books) {
+		for (NewBookDto book : books) {
 
-			Book databaseBook = createBook("admin", book);
-
-			// Generate random amount of copies between 1 and 3
-			Random random = new Random();
-			for (int i = 0; i < random.ints(1, 4).findFirst().getAsInt(); i++) {
-				copyController.createCopy("admin", databaseBook.getId());
-			}
+			createBook("admin", book);
 		}
 
 		return findAllBooks();
 	}
 
 	@PutMapping("book/{id}/edit")
-	public Map<String, String> editBook(@RequestHeader(name = "Authorization") String token, @RequestBody Book book,
+	public Map<String, String> editBook(@RequestHeader(name = "Authorization") String token, @RequestBody NewBookDto book,
 			@PathVariable long id) {
 
 		if (!userController.userIsAdmin(token)) {
@@ -118,6 +135,18 @@ public class BookController {
 		prevBook.setAuthor(book.getAuthor());
 		prevBook.setIsbn(book.getIsbn());
 		prevBook.setTitle(book.getTitle());
+		
+		// To ensure all tags are removed and added; first clear the existing tags Set in book before adding all tags again
+				if (book.getTags()!=null) {
+					prevBook.getTags().clear();
+					for (String tag:book.getTags()) {
+						//remove white spaces & capital letters
+						tag=tag.trim();
+						tag=tag.toLowerCase();
+						
+						tagController.createTag(token, tag, prevBook.getId());
+					}
+				}
 
 		bookRepo.save(prevBook);
 		Map<String, String> map = new HashMap<String, String>();
@@ -142,7 +171,7 @@ public class BookController {
 		List<Book> books = bookRepo.findAll();
 		List<Book> booksNotReservedByUser = new ArrayList<Book>();
 
-		// Go over all 
+		// Go over all
 		outerloop: for (Book book : books) {
 
 			for (Reservation reservation : book.getReservations()) {
@@ -166,28 +195,27 @@ public class BookController {
 	public Book findBook(@PathVariable long id) {
 		return bookRepo.findById(id).get();
 	}
-	
+
 	@GetMapping("book/copy/{id}")
 	public List<Copy> getAvailableCopiesById(@PathVariable long id) {
-		
+
 		List<Copy> copies = copyRepo.findAll();
 		List<Copy> copiesOfBook = new ArrayList<Copy>();
-		
-		outerloop: 
-		for (Copy copy : copies) {
-			
+
+		outerloop: for (Copy copy : copies) {
+
 			if (copy.getBook().getId() == id) {
-				
+
 				for (Loan loan : copy.getLoans()) {
-					
+
 					if (loan.getEndDate() == null || loan.getEndDate().equalsIgnoreCase(""))
 						continue outerloop;
 				}
-				
+
 				copiesOfBook.add(copy);
 			}
 		}
-		
+
 		return copiesOfBook;
 	}
 }
